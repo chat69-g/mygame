@@ -45,5 +45,19 @@ bool Player::isGrounded() const {
     return false;  // Začasna implementacija
 }
 
+void Player::jump() {
+    if (isGrounded()) {
+        velocityY = Constants::JUMP_FORCE;
+        isJumping = true;
+    }
+}
+
+void Player::move(float dx, float dy) {
+    velocityX = dx * Constants::PLAYER_SPEED;
+    if (dy != 0 && isGrounded()) {
+        jump();
+    }
+}
+
 // Odstranite nepotrebne metode, ki niso deklarirane v Player.hpp
 // ali pa jih dodajte v header, če jih potrebujete
