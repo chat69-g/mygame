@@ -1,32 +1,26 @@
-# Kompilator
+# Makefile
 CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Iinclude
+LDFLAGS = -lSDL2
+SRCDIR = src
+OBJDIR = obj
+BINDIR = bin
 
-# SDL2 poti (prilagodi glede na tvojo namestitev)
-SDL2_INC = -IC:/SDL2/SDL2-2.32.4/include
-SDL2_LIB = -LC:/SDL2/SDL2-2.32.4/lib -lSDL2 -lSDL2main -lSDL2_image -lSDL2_ttf -lmingw32
+SOURCES = $(wildcard $(SRCDIR)/*.cpp)
+OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SOURCES))
+EXECUTABLE = $(BINDIR)/mygame
 
-# Izvorne datoteke (dodaj vse potrebne .cpp)
-SRC = src/main.cpp src/Game.cpp src/Player.cpp
-OBJ = $(SRC:.cpp=.o)
-TARGET = MYGAME_Bikec.exe
+all: $(EXECUTABLE)
 
-# Prevajalne zastavice
-CXXFLAGS = -std=c++17 -Wall $(SDL2_INC)
-LDFLAGS = $(SDL2_LIB)
+$(EXECUTABLE): $(OBJECTS)
+	@mkdir -p $(BINDIR)
+	$(CXX) $(LDFLAGS) $^ -o $@
 
-# Pravila
-all: $(TARGET)
-
-$(TARGET): $(OBJ)
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-%.o: %.cpp
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	@mkdir -p $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	del /Q $(subst /,\,$(OBJ)) $(TARGET) 2> nul
+	rm -rf $(OBJDIR) $(EXECUTABLE)
 
-run: $(TARGET)
-	./$(TARGET)
-
-.PHONY: all clean run
+.PHONY: all clean
