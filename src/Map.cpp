@@ -47,5 +47,10 @@ bool Map::isGoal(const GameObject& obj) const {
     return false;
 }
 
+void Map::update() {
+    // Implementacija posodabljanja mape
+    // Na primer: posodabljanje premikajočih se objektov
+}
+
 int Map::getWidth() const { return width; }
 int Map::getHeight() const { return height; }

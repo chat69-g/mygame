@@ -19,5 +19,11 @@ void Player::render(SDL_Renderer* renderer) {  // Popravljeno da se ujema z dekl
     std::cout << "Player at: " << x << "," << y << std::endl;
 }
 
+bool Player::isGrounded() const {
+    // Preverjanje, če je igralec na tleh
+    // Vrnite true, če je na tleh, false sicer
+    return false;  // Začasna implementacija
+}
+
 // Odstranite nepotrebne metode, ki niso deklarirane v Player.hpp
 // ali pa jih dodajte v header, če jih potrebujete

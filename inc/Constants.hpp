@@ -3,17 +3,17 @@
 
 namespace Constants {
     // Window
-    const int SCREEN_WIDTH = 800;
-    const int SCREEN_HEIGHT = 600;
-    const char* WINDOW_TITLE = "My Game";
+    inline const int SCREEN_WIDTH = 800;
+    inline const int SCREEN_HEIGHT = 600;
+    inline const char* WINDOW_TITLE = "My Game";
     
     // Gameplay
-    const float GRAVITY = 0.5f;
-    const float JUMP_FORCE = -10.0f;
-    const float PLAYER_SPEED = 5.0f;
+    inline const float GRAVITY = 0.5f;
+    inline const float JUMP_FORCE = -10.0f;
+    inline const float PLAYER_SPEED = 5.0f;
     
     // Tiles
-    const int TILE_SIZE = 32;
+    inline const int TILE_SIZE = 32;
     const char WALL = '#';
     const char PLAYER = 'P';
     const char EMPTY = ' ';
