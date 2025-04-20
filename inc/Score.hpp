@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <nlohmann/json.hpp>
+#include <fstream>
+#include <algorithm>
 
 struct ScoreEntry {
     std::string name;
@@ -21,6 +22,7 @@ public:
     
 private:
     std::vector<ScoreEntry> scores;
-    nlohmann::json ToJson() const;
-    void FromJson(const nlohmann::json& j);
+
+    std::string SerializeScores() const;
+    void DeserializeScores(const std::string& data);
 };

@@ -1,24 +1,21 @@
 #include "Score.hpp"
-#include <fstream>
+#include <sstream>
 #include <algorithm>
-
-using namespace std;
-using json = nlohmann::json;
 
 ScoreManager::ScoreManager() {
     // Initialize with some default scores
     scores = {
-        {"Hero", 5000},
-        {"Champion", 4000},
-        {"Savior", 3000},
-        {"Protector", 2000},
-        {"Newbie", 1000}
+        {"Hero", 5000, 120.5f, 2},
+        {"Champion", 4000, 150.0f, 2},
+        {"Savior", 3000, 180.0f, 1},
+        {"Protector", 2000, 200.0f, 1},
+        {"Newbie", 1000, 250.0f, 1}
     };
 }
 
 void ScoreManager::AddScore(const ScoreEntry& entry) {
     scores.push_back(entry);
-    sort(scores.begin(), scores.end(), 
+    std::sort(scores.begin(), scores.end(), 
         [](const ScoreEntry& a, const ScoreEntry& b) {
             return a.score > b.score;
         });
@@ -28,76 +25,61 @@ void ScoreManager::AddScore(const ScoreEntry& entry) {
     }
 }
 
-void ScoreManager::SaveToFile(const string& filename) {
-    json j;
+std::string ScoreManager::SerializeScores() const {
+    std::ostringstream oss;
     for(const auto& entry : scores) {
-        j["scores"].push_back({
-            {"name", entry.name},
-            {"score", entry.score},
-            {"time", entry.time},
-            {"level", entry.level}
-        });
+        oss << entry.name << "," 
+            << entry.score << ","
+            << entry.time << ","
+            << entry.level << "\n";
     }
+    return oss.str();
+}
+
+void ScoreManager::DeserializeScores(const std::string& data) {
+    std::istringstream iss(data);
+    scores.clear();
     
-    ofstream file(filename);
+    std::string line;
+    while(std::getline(iss, line)) {
+        std::istringstream lineStream(line);
+        ScoreEntry entry;
+        std::string field;
+        
+        if(std::getline(lineStream, field, ',')) entry.name = field;
+        if(std::getline(lineStream, field, ',')) entry.score = std::stoi(field);
+        if(std::getline(lineStream, field, ',')) entry.time = std::stof(field);
+        if(std::getline(lineStream, field, ',')) entry.level = std::stoi(field);
+        
+        scores.push_back(entry);
+    }
+}
+
+void ScoreManager::SaveToFile(const std::string& filename) {
+    std::ofstream file(filename);
     if(file.is_open()) {
-        file << j.dump(4);
+        file << SerializeScores();
         file.close();
     }
 }
 
-void ScoreManager::LoadFromFile(const string& filename) {
-    ifstream file(filename);
+void ScoreManager::LoadFromFile(const std::string& filename) {
+    std::ifstream file(filename);
     if(!file.is_open()) return;
     
-    json j;
-    file >> j;
-    file.close();
-    
-    scores.clear();
-    for(const auto& item : j["scores"]) {
-        scores.push_back({
-            item["name"].get<string>(),
-            item["score"].get<int>(),
-            item["time"].get<float>(),
-            item["level"].get<int>()
-        });
-    }
+    std::string content((std::istreambuf_iterator<char>(file)),
+                        std::istreambuf_iterator<char>());
+    DeserializeScores(content);
 }
 
-const vector<ScoreEntry>& ScoreManager::GetTopScores(int count) const {
-    static vector<ScoreEntry> topScores;
+const std::vector<ScoreEntry>& ScoreManager::GetTopScores(int count) const {
+    static std::vector<ScoreEntry> topScores;
     topScores.clear();
     
-    int end = min(count, static_cast<int>(scores.size()));
+    int end = std::min(count, static_cast<int>(scores.size()));
     for(int i = 0; i < end; i++) {
         topScores.push_back(scores[i]);
     }
     
     return topScores;
-}
-
-json ScoreManager::ToJson() const {
-    json j;
-    for(const auto& entry : scores) {
-        j["scores"].push_back({
-            {"name", entry.name},
-            {"score", entry.score},
-            {"time", entry.time},
-            {"level", entry.level}
-        });
-    }
-    return j;
-}
-
-void ScoreManager::FromJson(const json& j) {
-    scores.clear();
-    for(const auto& item : j["scores"]) {
-        scores.push_back({
-            item["name"].get<string>(),
-            item["score"].get<int>(),
-            item["time"].get<float>(),
-            item["level"].get<int>()
-        });
-    }
 }

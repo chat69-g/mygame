@@ -1,19 +1,20 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Iinc -IC:/SDL2/include
-LDFLAGS = -LC:/SDL2/lib -lmingw32 -lSDL2main -lSDL2 -mwindows
+LDFLAGS = -LC:/SDL2/lib -lSDL2 -lSDL2_image -lSDL2_ttf
+
 SRCDIR = src
 OBJDIR = obj
 BINDIR = bin
 
 SOURCES = $(wildcard $(SRCDIR)/*.cpp)
 OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SOURCES))
-EXECUTABLE = $(BINDIR)/mygame.exe
+EXECUTABLE = $(BINDIR)/mygame
 
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
 	@mkdir -p $(BINDIR)
-	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
+	$(CXX) $(OBJECTS) -o $@ $(LDFLAGS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(OBJDIR)
