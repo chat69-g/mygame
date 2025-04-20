@@ -1,98 +1,99 @@
 #include "Map.hpp"
+#include "Game.hpp"
+#include <SDL2/SDL_image.h>
 #include <fstream>
-#include <iostream>
-#include "Constants.hpp"
-#include <SDL2/SDL.h>
+#include <random>
 
-Map::Map() : width(0), height(0) {}
+using namespace std;
 
-Map::~Map() {
-    // Čiščenje virov, če je potrebno
-}
-
-bool Map::loadFromFile(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open map file: " << filename << std::endl;
-        return false;
-    }
+Map::Map() : width(20), height(15) {
+    // Initialize tiles
+    tiles.resize(height, vector<Tile>(width));
     
-    std::string line;
-    while (std::getline(file, line)) {
-        tileMap.push_back(line);
-    }
-    
-    height = tileMap.size();
-    width = height > 0 ? tileMap[0].size() : 0;
-    
-    return true;
-}
-
-void Map::render(SDL_Renderer* renderer) {
-    // Preverimo, ali imamo veljavno mapo in renderer
-    if (!renderer || tileMap.empty()) return;
-
-    // Risanje vseh elementov mape
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            SDL_Rect tileRect = {
-                x * Constants::TILE_SIZE,
-                y * Constants::TILE_SIZE,
-                Constants::TILE_SIZE,
-                Constants::TILE_SIZE
-            };
-
-            switch (tileMap[y][x]) {
-                case Constants::WALL:  // Stene
-                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Bela
-                    SDL_RenderFillRect(renderer, &tileRect);
-                    break;
-                    
-                case Constants::GOAL:  // Cilj
-                    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Zelena
-                    SDL_RenderFillRect(renderer, &tileRect);
-                    break;
-                    
-                case Constants::SPIKE:  // Ostrije (če so v vaši igri)
-                    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Rdeča
-                    SDL_RenderFillRect(renderer, &tileRect);
-                    break;
-                    
-                case Constants::PLATFORM:  // Platforme (če so v vaši igri)
-                    SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255); // Rjava
-                    SDL_RenderFillRect(renderer, &tileRect);
-                    break;
-                    
-                // Dodajte dodatne tipe tilov po potrebi
-            }
+    // Load textures
+    for(int i = 0; i < 5; i++) {
+        string path = "assets/tile" + to_string(i) + ".png";
+        tileTextures[i] = IMG_LoadTexture(Game::Instance().renderer, path.c_str());
+        if(!tileTextures[i]) {
+            cerr << "Failed to load tile texture " << i << ": " << IMG_GetError() << endl;
         }
     }
+}
 
-    // Risanje vseh GameObjectov na mapi
-    for (const auto& obj : gameObjects) {
-        obj->render(renderer);
+Map::~Map() {
+    for(auto tex : tileTextures) {
+        if(tex) SDL_DestroyTexture(tex);
     }
 }
 
-bool Map::isColliding(const GameObject& obj) const {
-    // Implementacija preverjanja trkov
-    return false;
+void Map::Generate(int level) {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dis(0, 100);
+    
+    width = 15 + (level * 5);
+    height = 10 + (level * 3);
+    tiles.resize(height, vector<Tile>(width));
+    
+    for(int y = 0; y < height; y++) {
+        for(int x = 0; x < width; x++) {
+            int roll = dis(gen);
+            tiles[y][x].type = (roll < 80) ? 0 : (roll < 90) ? 1 : 2;
+            tiles[y][x].walkable = (tiles[y][x].type != 2);
+            tiles[y][x].hasFarm = false;
+            tiles[y][x].hasAnimal = false;
+        }
+    }
+    
+    // Ensure path from start to exit
+    // Simplified path generation - would use proper algorithm in real implementation
+    for(int y = 1; y < height-1; y++) {
+        tiles[y][1].type = 0;
+        tiles[y][1].walkable = true;
+    }
 }
 
-bool Map::isSpike(const GameObject& obj) const {
-    // Implementacija preverjanja, če je objekt na spike ploščici
-    return false;
+void Map::Render(SDL_Renderer* renderer) {
+    for(int y = 0; y < height; y++) {
+        for(int x = 0; x < width; x++) {
+            SDL_Rect dest = {x * 32, y * 32, 32, 32};
+            SDL_RenderCopy(renderer, tileTextures[tiles[y][x].type], nullptr, &dest);
+        }
+    }
 }
 
-bool Map::isGoal(const GameObject& obj) const {
-    // Implementacija preverjanja, če je objekt na cilju
-    return false;
+Vec2 Map::GetRandomWalkablePosition() const {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> xdis(0, width-1);
+    uniform_int_distribution<> ydis(0, height-1);
+    
+    while(true) {
+        int x = xdis(gen);
+        int y = ydis(gen);
+        if(tiles[y][x].walkable) {
+            return {static_cast<float>(x * 32), static_cast<float>(y * 32)};
+        }
+    }
 }
 
-void Map::update() {
-    // Implementacija posodabljanja mape
-    // Na primer: posodabljanje premikajočih se objektov
+bool Map::IsPositionWalkable(const Vec2& pos) const {
+    int x = static_cast<int>(pos.x) / 32;
+    int y = static_cast<int>(pos.y) / 32;
+    if(x < 0 || y < 0 || x >= width || y >= height) return false;
+    return tiles[y][x].walkable;
 }
 
-int Map::getWidth() const { return width; }
-int Map::getHeight() const { return height; }
+bool Map::HasFarmAtPosition(const Vec2& pos) const {
+    int x = static_cast<int>(pos.x) / 32;
+    int y = static_cast<int>(pos.y) / 32;
+    if(x < 0 || y < 0 || x >= width || y >= height) return false;
+    return tiles[y][x].hasFarm;
+}
+
+bool Map::HasAnimalAtPosition(const Vec2& pos) const {
+    int x = static_cast<int>(pos.x) / 32;
+    int y = static_cast<int>(pos.y) / 32;
+    if(x < 0 || y < 0 || x >= width || y >= height) return false;
+    return tiles[y][x].hasAnimal;
+}

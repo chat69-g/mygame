@@ -1,28 +1,33 @@
 #pragma once
+#include "common.hpp"
 #include <vector>
 #include <string>
-#include <memory>
-#include "GameObject.hpp"
+
+struct Tile {
+    int type;
+    bool walkable;
+    bool hasFarm;
+    bool hasAnimal;
+};
 
 class Map {
 public:
     Map();
     ~Map();
     
-    bool loadFromFile(const std::string& filename);
-    void update();
-    void render(SDL_Renderer* renderer);  // Odstranjeno const
+    void Generate(int level);
+    void Render(SDL_Renderer* renderer);
+    Vec2 GetRandomWalkablePosition() const;
+    bool IsPositionWalkable(const Vec2& pos) const;
+    bool HasFarmAtPosition(const Vec2& pos) const;
+    bool HasAnimalAtPosition(const Vec2& pos) const;
     
-    // Dodajte manjkajoče deklaracije metod
-    bool isColliding(const GameObject& obj) const;
-    bool isSpike(const GameObject& obj) const;
-    bool isGoal(const GameObject& obj) const;
-    
-    int getWidth() const;
-    int getHeight() const;
+    int width;
+    int height;
+    std::vector<std::vector<Tile>> tiles;
     
 private:
-    std::vector<std::string> tileMap;
-    std::vector<std::unique_ptr<GameObject>> gameObjects;
-    int width, height;
+    void LoadFromFile(const std::string& filename);
+    void GenerateProcedural(int level);
+    SDL_Texture* tileTextures[5];
 };

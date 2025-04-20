@@ -1,104 +1,207 @@
 #include "Game.hpp"
+#include <SDL2/SDL_image.h>
 #include <iostream>
-#include <memory>
-#include "Constants.hpp"
 
-Game::Game() : 
-    running(false),
-    window(nullptr),
-    renderer(nullptr),
-    map(nullptr),
-    player(nullptr)
-{}
+using namespace std;
 
-Game::~Game() {
-    cleanup();
+Game& Game::Instance() {
+    static Game instance;
+    return instance;
 }
 
-bool Game::init() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cerr << "SDL could not initialize! Error: " << SDL_GetError() << std::endl;
-        return false;
+Game::Game() : isRunning(false), window(nullptr), renderer(nullptr), 
+               currentState(GameState::MENU), currentLevel(1) {}
+
+void Game::Init(const char* title, int width, int height) {
+    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
+        cerr << "SDL could not initialize! Error: " << SDL_GetError() << endl;
+        return;
     }
-    
-    window = SDL_CreateWindow(Constants::WINDOW_TITLE,
-                            SDL_WINDOWPOS_CENTERED,
-                            SDL_WINDOWPOS_CENTERED,
-                            Constants::SCREEN_WIDTH,
-                            Constants::SCREEN_HEIGHT,
-                            SDL_WINDOW_SHOWN);
-    
-    if (!window) {
-        std::cerr << "Window could not be created! Error: " << SDL_GetError() << std::endl;
-        return false;
+
+    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, 
+                             SDL_WINDOWPOS_CENTERED, width, height, 0);
+    if(!window) {
+        cerr << "Window could not be created! Error: " << SDL_GetError() << endl;
+        return;
     }
-    
+
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (!renderer) {
-        std::cerr << "Renderer could not be created! Error: " << SDL_GetError() << std::endl;
-        return false;
+    if(!renderer) {
+        cerr << "Renderer could not be created! Error: " << SDL_GetError() << endl;
+        return;
     }
-    
-    player = std::make_unique<Player>(100, 100);
-    map = new Map();
-    if (!map->loadFromFile("assets/map.txt")) {
-        std::cerr << "Failed to load map!" << std::endl;
-        return false;
-    }
-    
-    running = true;
-    return true;
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    isRunning = true;
+
+    // Initialize game components
+    player = make_unique<Player>();
+    map = make_unique<Map>();
+    scoreManager = ScoreManager();
+    scoreManager.LoadFromFile("scores.json");
+
+    LoadLevel(currentLevel);
 }
 
-void Game::run() {
-    while (running) {
-        handleEvents();
-        update();
-        render();
-        SDL_Delay(16); // ~60 FPS
-    }
-}
-
-void Game::handleEvents() {
-    SDL_Event e;
-    while (SDL_PollEvent(&e)) {
-        if (e.type == SDL_QUIT) {
-            running = false;
+void Game::HandleEvents() {
+    SDL_Event event;
+    while(SDL_PollEvent(&event)) {
+        if(event.type == SDL_QUIT) {
+            isRunning = false;
         }
-        else if (e.type == SDL_KEYDOWN) {
-            switch (e.key.keysym.sym) {
-                case SDLK_LEFT:
-                    player->move(-1, 0);
+
+        if(currentState == GameState::MENU) {
+            // Menu handles its own events
+            continue;
+        }
+
+        if(event.type == SDL_KEYDOWN) {
+            switch(event.key.keysym.sym) {
+                case SDLK_ESCAPE:
+                    if(currentState == GameState::PLAYING) {
+                        ChangeState(GameState::PAUSED);
+                    } else {
+                        ChangeState(GameState::PLAYING);
+                    }
                     break;
-                case SDLK_RIGHT:
-                    player->move(1, 0);
+                case SDLK_F5:
+                    SaveGame();
                     break;
-                case SDLK_SPACE:
-                    player->jump();
+                case SDLK_F9:
+                    LoadGame();
                     break;
             }
         }
     }
+
+    if(currentState == GameState::PLAYING) {
+        player->HandleInput(SDL_GetKeyboardState(nullptr));
+    }
 }
 
-void Game::update() {
-    player->update();
-    map->update();
+void Game::Update(float deltaTime) {
+    if(currentState != GameState::PLAYING) return;
+
+    levelTime += deltaTime;
+    if(levelTime > maxLevelTime) {
+        player->score -= 10; // Penalty for taking too long
+        levelTime = 0;
+    }
+
+    player->Update(deltaTime);
+    
+    for(auto& enemy : enemies) {
+        enemy->Update(deltaTime, *player, *map);
+    }
+
+    for(auto& animal : animals) {
+        animal->Update(deltaTime);
+    }
+
+    for(auto& farm : farms) {
+        farm->Update(deltaTime);
+    }
+
+    // Check win/lose conditions
+    if(player->health <= 0) {
+        ChangeState(GameState::GAME_OVER);
+    }
+
+    bool allAnimalsRescued = all_of(animals.begin(), animals.end(), 
+        [](const unique_ptr<Animal>& a) { return a->isRescued; });
+    
+    if(allAnimalsRescued) {
+        ChangeState(GameState::LEVEL_COMPLETE);
+    }
 }
 
-void Game::render() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+void Game::Render() {
     SDL_RenderClear(renderer);
+
+    map->Render(renderer);
     
-    map->render(renderer);
-    player->render(renderer);
+    for(auto& farm : farms) {
+        farm->Render(renderer);
+    }
     
+    for(auto& animal : animals) {
+        animal->Render(renderer);
+    }
+    
+    for(auto& enemy : enemies) {
+        enemy->Render(renderer);
+    }
+    
+    player->Render(renderer);
+
     SDL_RenderPresent(renderer);
 }
 
-void Game::cleanup() {
-    delete map;
+void Game::Clean() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+void Game::ChangeState(GameState newState) {
+    currentState = newState;
+    
+    if(newState == GameState::LEVEL_COMPLETE) {
+        currentLevel++;
+        if(currentLevel > 2) { // Only 2 levels in this example
+            // Game completed
+            ScoreEntry entry{player->name, player->score, levelTime, currentLevel};
+            scoreManager.AddScore(entry);
+            scoreManager.SaveToFile("scores.json");
+            ChangeState(GameState::MENU);
+        } else {
+            LoadLevel(currentLevel);
+            ChangeState(GameState::PLAYING);
+        }
+    }
+}
+
+void Game::LoadLevel(int level) {
+    levelTime = 0;
+    maxLevelTime = 120.0f - (level * 20); // Less time for higher levels
+    
+    map->Generate(level);
+    player->position = map->GetRandomWalkablePosition();
+    player->health = 3;
+
+    // Clear existing entities
+    enemies.clear();
+    animals.clear();
+    farms.clear();
+
+    // Create enemies based on level
+    int enemyCount = 2 + level;
+    for(int i = 0; i < enemyCount; i++) {
+        Vec2 pos = map->GetRandomWalkablePosition();
+        enemies.push_back(make_unique<Enemy>(pos));
+    }
+
+    // Create animals to rescue
+    int animalCount = 3 + level;
+    for(int i = 0; i < animalCount; i++) {
+        Vec2 pos = map->GetRandomWalkablePosition();
+        animals.push_back(make_unique<Animal>(pos, rand() % 3));
+    }
+
+    // Create hidden farms
+    int farmCount = 1 + level;
+    for(int i = 0; i < farmCount; i++) {
+        Vec2 pos = map->GetRandomWalkablePosition();
+        farms.push_back(make_unique<Farm>(pos));
+    }
+}
+
+void Game::SaveGame() {
+    // Implementation would save player, map, and entities state
+    cout << "Game saved!" << endl;
+}
+
+void Game::LoadGame() {
+    // Implementation would load saved state
+    cout << "Game loaded!" << endl;
 }

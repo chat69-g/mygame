@@ -1,20 +1,36 @@
 #pragma once
-#include "GameObject.hpp"
-#include "Physics.hpp"
+#include "common.hpp"
+#include <string>
 
-class Player : public GameObject {
+enum class PlayerState {
+    IDLE,
+    MOVING,
+    ATTACKING,
+    RESCUING,
+    DEAD
+};
+
+class Player {
 public:
-    Player(float x, float y);
-    void update() override;
-    void render(SDL_Renderer* renderer) override;
+    Player();
     
-    // Dodane metode za upravljanje z igralcem
-    void jump();
-    void move(float dx, float dy);
-    bool isGrounded() const;
+    void HandleInput(const Uint8* keystate);
+    void Update(float deltaTime);
+    void Render(SDL_Renderer* renderer);
+    
+    void TakeDamage(int amount);
+    void RescueAnimal();
+    void DestroyFarm();
+    
+    Vec2 position;
+    Vec2 velocity;
+    int health;
+    int score;
+    std::string name;
+    PlayerState currentState;
     
 private:
-    float velocityX, velocityY;
-    bool facingRight;
-    bool isJumping;
+    float speed;
+    float attackCooldown;
+    SDL_Texture* texture;
 };
