@@ -1,24 +1,15 @@
 // include/Map.hpp
 #pragma once
-#include <vector>
-#include <string>
-#include <memory>
-#include "GameObject.hpp"
-#include "Constants.hpp"
+#include <SDL2/SDL.h>
 
 class Map {
 public:
     Map();
+    ~Map();
+    
     bool loadFromFile(const std::string& filename);
     void update();
-    void render() const;
-    
-    bool isColliding(const GameObject& obj) const;
-    bool isSpike(const GameObject& obj) const;
-    bool isGoal(const GameObject& obj) const;
-    
-    int getWidth() const;
-    int getHeight() const;
+    void render(SDL_Renderer* renderer);
     
 private:
     std::vector<std::string> tileMap;

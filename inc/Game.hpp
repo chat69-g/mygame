@@ -1,5 +1,6 @@
-// include/Game.hpp
 #pragma once
+#include <memory>
+#include <SDL2/SDL.h>
 #include "Player.hpp"
 #include "Map.hpp"
 
@@ -13,11 +14,14 @@ public:
     void cleanup();
     
 private:
-    void handleInput();
+    void handleEvents();
     void update();
     void render();
     
     bool running;
-    Player* player;
-    Map* map;
+    std::unique_ptr<Player> player;
+    Map* map;  // Spremenjeno v kazalec
+    
+    SDL_Window* window;    // Dodano
+    SDL_Renderer* renderer; // Dodano
 };
