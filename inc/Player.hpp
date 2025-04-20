@@ -1,7 +1,7 @@
 // include/Player.hpp
 #pragma once
 #include "GameObject.hpp"
-#include "Physics.hpp"
+#include "../inc/Physics.hpp"
 
 class Player : public GameObject {
 public:

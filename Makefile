@@ -1,6 +1,6 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -I./include
-LDFLAGS = -lSDL2
+CXXFLAGS = -std=c++17 -Wall -Iinc -Iinc/ -IC:\\SDL2\\include
+LDFLAGS = -LC:\SDL2\lib -lSDL2 -lSDL2main -mwindows
 SRCDIR = src
 OBJDIR = obj
 BINDIR = bin
@@ -13,7 +13,7 @@ all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
 	@mkdir -p $(BINDIR)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(OBJDIR)

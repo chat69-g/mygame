@@ -1,5 +1,5 @@
 // src/Game.cpp
-#include "Game.hpp"
+#include "../inc/Game.hpp"
 #include <SDL2/SDL.h> // Ali katero koli grafično knjižnico
 
 Game::Game() : running(false), window(nullptr), renderer(nullptr) {}
