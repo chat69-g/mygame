@@ -2,21 +2,41 @@
 #include "Physics.hpp"
 #include "Constants.hpp"  // Dodano
 #include <iostream>       // Dodano za std::cout
+#include <SDL2/SDL.h>
 
 Player::Player(float x, float y) 
     : GameObject(x, y, Constants::TILE_SIZE, Constants::TILE_SIZE * 2),
       velocityX(0), velocityY(0),
       facingRight(true), isJumping(false) {}
 
-void Player::update() {
-    Physics::applyGravity(y, velocityY, isGrounded());
-    Physics::handleMovement(x, y, velocityX, velocityY);
-}
+      void Player::update() {
+        // Uporabite manjšo gravitacijo za boljši občutek
+        velocityY += 0.2f;  // Namesto Constants::GRAVITY za testiranje
+        
+        // Limitirajte maksimalno hitrost
+        if (velocityY > 10.0f) velocityY = 10.0f;
+        
+        // Posodobite pozicijo
+        x += velocityX;
+        y += velocityY;
+        
+        // Preprost "collision" s spodnjim robom ekrana
+        if (y > Constants::SCREEN_HEIGHT - height) {
+            y = Constants::SCREEN_HEIGHT - height;
+            velocityY = 0;
+        }
+    }
 
-void Player::render(SDL_Renderer* renderer) {  // Popravljeno da se ujema z deklaracijo
-    // Tukaj dodajte kodo za risanje igralca z uporabo SDL_Rendererja
-    // Za zdaj samo izpis v konzolo za debug namene
-    std::cout << "Player at: " << x << "," << y << std::endl;
+void Player::render(SDL_Renderer* renderer) {
+    SDL_Rect playerRect = {
+        static_cast<int>(x),
+        static_cast<int>(y),
+        static_cast<int>(width),
+        static_cast<int>(height)
+    };
+    
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Rdeča barva
+    SDL_RenderFillRect(renderer, &playerRect);
 }
 
 bool Player::isGrounded() const {

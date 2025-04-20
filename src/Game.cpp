@@ -65,7 +65,19 @@ void Game::handleEvents() {
         if (e.type == SDL_QUIT) {
             running = false;
         }
-        // Tukaj dodajte input handling za igralca
+        else if (e.type == SDL_KEYDOWN) {
+            switch (e.key.keysym.sym) {
+                case SDLK_LEFT:
+                    player->move(-1, 0);
+                    break;
+                case SDLK_RIGHT:
+                    player->move(1, 0);
+                    break;
+                case SDLK_SPACE:
+                    player->jump();
+                    break;
+            }
+        }
     }
 }
 

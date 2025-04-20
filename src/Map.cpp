@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include "Constants.hpp"
+#include <SDL2/SDL.h>
 
 Map::Map() : width(0), height(0) {}
 
@@ -28,8 +29,49 @@ bool Map::loadFromFile(const std::string& filename) {
 }
 
 void Map::render(SDL_Renderer* renderer) {
-    // Implementacija renderiranja z uporabo SDL_Rendererja
-    // Tukaj dodajte kodo za risanje mape
+    // Preverimo, ali imamo veljavno mapo in renderer
+    if (!renderer || tileMap.empty()) return;
+
+    // Risanje vseh elementov mape
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            SDL_Rect tileRect = {
+                x * Constants::TILE_SIZE,
+                y * Constants::TILE_SIZE,
+                Constants::TILE_SIZE,
+                Constants::TILE_SIZE
+            };
+
+            switch (tileMap[y][x]) {
+                case Constants::WALL:  // Stene
+                    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Bela
+                    SDL_RenderFillRect(renderer, &tileRect);
+                    break;
+                    
+                case Constants::GOAL:  // Cilj
+                    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Zelena
+                    SDL_RenderFillRect(renderer, &tileRect);
+                    break;
+                    
+                case Constants::SPIKE:  // Ostrije (če so v vaši igri)
+                    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Rdeča
+                    SDL_RenderFillRect(renderer, &tileRect);
+                    break;
+                    
+                case Constants::PLATFORM:  // Platforme (če so v vaši igri)
+                    SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255); // Rjava
+                    SDL_RenderFillRect(renderer, &tileRect);
+                    break;
+                    
+                // Dodajte dodatne tipe tilov po potrebi
+            }
+        }
+    }
+
+    // Risanje vseh GameObjectov na mapi
+    for (const auto& obj : gameObjects) {
+        obj->render(renderer);
+    }
 }
 
 bool Map::isColliding(const GameObject& obj) const {
