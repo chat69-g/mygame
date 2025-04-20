@@ -1,7 +1,7 @@
 #pragma once
-#include <vector>  // Dodano
-#include <string>  // Dodano
-#include <memory>  // Dodano
+#include <vector>
+#include <string>
+#include <memory>
 #include "GameObject.hpp"
 
 class Map {
@@ -11,7 +11,15 @@ public:
     
     bool loadFromFile(const std::string& filename);
     void update();
-    void render(SDL_Renderer* renderer);
+    void render(SDL_Renderer* renderer);  // Odstranjeno const
+    
+    // Dodajte manjkajoče deklaracije metod
+    bool isColliding(const GameObject& obj) const;
+    bool isSpike(const GameObject& obj) const;
+    bool isGoal(const GameObject& obj) const;
+    
+    int getWidth() const;
+    int getHeight() const;
     
 private:
     std::vector<std::string> tileMap;

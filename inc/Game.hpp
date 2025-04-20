@@ -19,8 +19,8 @@ private:
     void render();
     
     bool running;
-    std::unique_ptr<Player> player;
+    SDL_Window* window;      // Premaknjeno navzgor
+    SDL_Renderer* renderer;  // Premaknjeno navzgor
     Map* map;
-    SDL_Window* window;
-    SDL_Renderer* renderer;
+    std::unique_ptr<Player> player;
 };

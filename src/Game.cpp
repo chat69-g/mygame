@@ -4,11 +4,11 @@
 #include "Constants.hpp"
 
 Game::Game() : 
-    running(false), 
-    window(nullptr), 
-    renderer(nullptr), 
-    map(nullptr), 
-    player(nullptr) 
+    running(false),
+    window(nullptr),
+    renderer(nullptr),
+    map(nullptr),
+    player(nullptr)
 {}
 
 Game::~Game() {
