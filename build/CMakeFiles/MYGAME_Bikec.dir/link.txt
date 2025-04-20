@@ -1,0 +1,3 @@
+C:\msys64\mingw64\bin\cmake.exe -E rm -f CMakeFiles\MYGAME_Bikec.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\MYGAME_Bikec.dir/objects.a @CMakeFiles\MYGAME_Bikec.dir\objects1.rsp
+C:\msys64\mingw64\bin\c++.exe -Wl,--whole-archive CMakeFiles\MYGAME_Bikec.dir/objects.a -Wl,--no-whole-archive -o MYGAME_Bikec.exe -Wl,--out-implib,libMYGAME_Bikec.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\MYGAME_Bikec.dir\linkLibs.rsp

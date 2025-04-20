@@ -1,0 +1,3 @@
+C:/Users/Jerala/MYGAME_Bikec/build/CMakeFiles/MYGAME_Bikec.dir
+C:/Users/Jerala/MYGAME_Bikec/build/CMakeFiles/edit_cache.dir
+C:/Users/Jerala/MYGAME_Bikec/build/CMakeFiles/rebuild_cache.dir
