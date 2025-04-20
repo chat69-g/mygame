@@ -5,7 +5,7 @@ namespace Constants {
     // Window
     const int SCREEN_WIDTH = 800;
     const int SCREEN_HEIGHT = 600;
-    const char* const WINDOW_TITLE = "My Game";
+    const char* WINDOW_TITLE = "My Game";
     
     // Gameplay
     const float GRAVITY = 0.5f;

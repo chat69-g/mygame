@@ -1,5 +1,5 @@
-// include/GameObject.hpp
 #pragma once
+#include <SDL2/SDL.h>
 
 class GameObject {
 public:
@@ -7,7 +7,7 @@ public:
     virtual ~GameObject() = default;
     
     virtual void update() = 0;
-    virtual void render() = 0;
+    virtual void render(SDL_Renderer* renderer) = 0;  // Spremenjeno
     
     float getX() const;
     float getY() const;

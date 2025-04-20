@@ -1,6 +1,8 @@
-// include/Map.hpp
 #pragma once
-#include <SDL2/SDL.h>
+#include <vector>  // Dodano
+#include <string>  // Dodano
+#include <memory>  // Dodano
+#include "GameObject.hpp"
 
 class Map {
 public:

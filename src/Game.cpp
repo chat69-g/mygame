@@ -1,8 +1,9 @@
-// src/Game.cpp
-#include "../inc/Game.hpp"
-#include <SDL2/SDL.h> // Ali katero koli grafično knjižnico
+#include "Game.hpp"
+#include <iostream>  // Dodano
+#include <memory>    // Dodano
+#include "Constants.hpp"
 
-Game::Game() : running(false), window(nullptr), renderer(nullptr) {}
+Game::Game() : running(false), window(nullptr), renderer(nullptr), map(nullptr) {}
 
 bool Game::init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -29,7 +30,8 @@ bool Game::init() {
     }
     
     player = std::make_unique<Player>(100, 100);
-    if (!map.loadFromFile("assets/map.txt")) {
+    map = new Map();
+    if (!map->loadFromFile("assets/map.txt")) {
         std::cerr << "Failed to load map!" << std::endl;
         return false;
     }
@@ -37,6 +39,7 @@ bool Game::init() {
     running = true;
     return true;
 }
+
 
 void Game::run() {
     while (running) {
