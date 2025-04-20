@@ -1,6 +1,7 @@
-// src/Player.cpp
 #include "Player.hpp"
-#include <iostream>
+#include "Physics.hpp"
+#include "Constants.hpp"  // Dodano
+#include <iostream>       // Dodano za std::cout
 
 Player::Player(float x, float y) 
     : GameObject(x, y, Constants::TILE_SIZE, Constants::TILE_SIZE * 2),
@@ -12,23 +13,11 @@ void Player::update() {
     Physics::handleMovement(x, y, velocityX, velocityY);
 }
 
-void Player::render() {
-    std::cout << "Player at: " << x << "," << y 
-              << " Velocity: " << velocityX << "," << velocityY << std::endl;
+void Player::render(SDL_Renderer* renderer) {  // Popravljeno da se ujema z deklaracijo
+    // Tukaj dodajte kodo za risanje igralca z uporabo SDL_Rendererja
+    // Za zdaj samo izpis v konzolo za debug namene
+    std::cout << "Player at: " << x << "," << y << std::endl;
 }
 
-void Player::handleInput() {
-    // Input handling bo premaknjen v Game.cpp
-}
-
-void Player::jump() {
-    if (isGrounded()) {
-        velocityY = Constants::JUMP_FORCE;
-        isJumping = true;
-    }
-}
-
-bool Player::isGrounded() const {
-    // Preverjanje tal bo v map kolizijah
-    return false;
-}
+// Odstranite nepotrebne metode, ki niso deklarirane v Player.hpp
+// ali pa jih dodajte v header, če jih potrebujete

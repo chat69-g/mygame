@@ -1,4 +1,3 @@
-// include/Physics.hpp
 #pragma once
 #include "Constants.hpp"
 
