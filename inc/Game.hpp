@@ -20,8 +20,7 @@ private:
     
     bool running;
     std::unique_ptr<Player> player;
-    Map* map;  // Spremenjeno v kazalec
-    
-    SDL_Window* window;    // Dodano
-    SDL_Renderer* renderer; // Dodano
+    Map* map;
+    SDL_Window* window;
+    SDL_Renderer* renderer;
 };
