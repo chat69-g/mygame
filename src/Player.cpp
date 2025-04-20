@@ -1,14 +1,16 @@
 #include "Player.hpp"
 #include "Game.hpp"
 #include <SDL2/SDL_image.h>
+#include <iostream>  // Add this
 
 using namespace std;
+
 
 Player::Player() : position{0,0}, velocity{0,0}, health(3), score(0), 
                   currentState(PlayerState::IDLE), speed(200.0f), 
                   attackCooldown(0) {
-    // Load texture
-    texture = IMG_LoadTexture(Game::Instance().renderer, "assets/player.png");
+    // Use GetRenderer()
+    texture = IMG_LoadTexture(Game::Instance().GetRenderer(), "assets/player.png");
     if(!texture) {
         cerr << "Failed to load player texture: " << IMG_GetError() << endl;
     }

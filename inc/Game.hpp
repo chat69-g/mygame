@@ -23,6 +23,8 @@ public:
     void LoadLevel(int level);
     void SaveGame();
     void LoadGame();
+
+    SDL_Renderer* GetRenderer() const { return renderer; }
     
     // Game components
     std::unique_ptr<Player> player;
