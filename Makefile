@@ -1,6 +1,5 @@
-# Makefile
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Iinclude
+CXXFLAGS = -std=c++17 -Wall -I./include
 LDFLAGS = -lSDL2
 SRCDIR = src
 OBJDIR = obj
