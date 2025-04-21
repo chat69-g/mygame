@@ -96,11 +96,22 @@ bool Game::Init(const char* title, int width, int height) {
 }
 
 void Game::Run() {
+    Uint32 lastTime = SDL_GetTicks();
+    
     while (IsRunning()) {
+        Uint32 currentTime = SDL_GetTicks();
+        float deltaTime = (currentTime - lastTime) / 1000.0f;
+        lastTime = currentTime;
+
         HandleEvents();
-        Update();
+        Update(deltaTime);  // Predpostavka, da Update sprejema deltaTime
         Render();
-        SDL_Delay(16);
+
+        // Ohranjanje 60 FPS
+        Uint32 frameTime = SDL_GetTicks() - currentTime;
+        if (frameTime < 16) {
+            SDL_Delay(16 - frameTime);
+        }
     }
 }
 
