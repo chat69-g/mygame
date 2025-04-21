@@ -96,7 +96,7 @@ bool Game::Init(const char* title, int width, int height) {
 }
 
 void Game::Run() {
-    while (isRunning) {
+    while (IsRunning()) {
         HandleEvents();
         Update();
         Render();

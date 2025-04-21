@@ -21,9 +21,9 @@ int main(int argc, char* argv[]){
     (void)argv;
 
     // Initialize SDL
-    if(SDL_Init(SDL_INIT_VIDEO) != 0) {
-        cerr << "SDL initialization failed: " << SDL_GetError() << endl;
-        return 1;
+    if (!Game::Instance().Init("My Farm Game", 800, 600)) {
+        std::cerr << "Game initialization failed!" << std::endl;
+        return -1;
     }
 
     // Initialize SDL_image
@@ -47,23 +47,24 @@ int main(int argc, char* argv[]){
         game.Init("Animal Rescue", 800, 600);
         
         Uint32 lastTime = SDL_GetTicks();
-        while(game.Running()) {
-            Uint32 currentTime = SDL_GetTicks();
+        while (Game::Instance().IsRunning()) {
+            Uint32 frameStart = SDL_GetTicks();
             float deltaTime = (currentTime - lastTime) / 1000.0f;
             lastTime = currentTime;
             
-            game.HandleEvents();
-            game.Update(deltaTime);
-            game.Render();
+            Game::Instance().HandleEvents();
+            Game::Instance().Update();
+            Game::Instance().Render();
             
-            // Cap at 60 FPS
-            Uint32 frameTime = SDL_GetTicks() - currentTime;
-            if(frameTime < 16) {
+             // Frame rate control
+            Uint32 frameTime = SDL_GetTicks() - frameStart;
+            if (frameTime < 16) {  // ~60 FPS
                 SDL_Delay(16 - frameTime);
             }
         }
         
-        game.Clean();
+        // Clean up
+    Game::Instance().Clean();
     } catch(const exception& e) {
         cerr << "Exception: " << e.what() << endl;
         TTF_Quit();
