@@ -3,12 +3,25 @@
 #include "Game.hpp"
 #include <iostream>
 
-Player::Player() : x(100), y(100), width(50), height(50), speed(5) {
-    texture = TextureManager::getInstance().get("player");
-}
+Player::Player() : position{0, 0}, health(3), score(0) {}
 
 Player::~Player() {
     // Texture is managed by TextureManager
+}
+
+void Player::HandleInput(const Uint8* keystate) {
+    float speed = 200.0f; // Hitrost gibanja
+    
+    if (keystate[SDL_SCANCODE_W]) position.y -= speed * Game::Instance().GetDeltaTime();
+    if (keystate[SDL_SCANCODE_S]) position.y += speed * Game::Instance().GetDeltaTime();
+    if (keystate[SDL_SCANCODE_A]) position.x -= speed * Game::Instance().GetDeltaTime();
+    if (keystate[SDL_SCANCODE_D]) position.x += speed * Game::Instance().GetDeltaTime();
+}
+void Player::TakeDamage(int amount) {
+    health -= amount;
+    if (health <= 0) {
+        Game::Instance().ChangeState(GameState::GAME_OVER);
+    }
 }
 
 void Player::HandleEvent(SDL_Event& event) {

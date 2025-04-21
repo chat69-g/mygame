@@ -1,17 +1,20 @@
 // Enemy.cpp
 #include "Enemy.hpp"
 #include <cmath>
+#include "Game.hpp"
 
-void Enemy::Update(float deltaTime, Vec2 playerPos) {
-    // Preprost AI za sledenje igralcu
+Enemy::Enemy(Vec2 startPos) : position(startPos) {}
+
+void Enemy::Update(float deltaTime) {
+    const Player& player = Game::Instance().GetPlayer();
     Vec2 direction = {
-        playerPos.x - position.x,
-        playerPos.y - position.y
+        player.position.x - position.x,
+        player.position.y - position.y
     };
     
-    float distance = sqrt(direction.x*direction.x + direction.y*direction.y);
+    float distance = std::sqrt(direction.x*direction.x + direction.y*direction.y);
     
-    if(distance < detectionRange && distance > 0) {
+    if (distance < detectionRange && distance > 0) {
         direction.x /= distance;
         direction.y /= distance;
         

@@ -91,33 +91,27 @@ void Game::Run() {
     Uint32 lastTime = SDL_GetTicks();
     float deltaTime = 0.0f;
     
-    // Inicializacija
-    if(!Init("Animal Rescue", 800, 600)) {
-        std::cerr << "Failed to initialize game!" << std::endl;
-        return;
-    }
-
+    LoadLevel(1); // Naloži prvo stopnjo
+    
     while (isRunning) {
-        // 1. Izračun deltaTime
+        // Izračunaj deltaTime
         Uint32 currentTime = SDL_GetTicks();
         deltaTime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
-
-        // 2. Obdelaj vnose
+        
         HandleEvents();
-
-        // 3. Posodobi stanje
         Update(deltaTime);
-
-        // 4. Izriši prikaz
         Render();
-
-        // 5. Omeji FPS
+        
+        // Omeji na 60 FPS
         Uint32 frameTime = SDL_GetTicks() - currentTime;
-        if(frameTime < 16) SDL_Delay(16 - frameTime);
+        if (frameTime < 16) {
+            SDL_Delay(16 - frameTime);
+        }
     }
-
-    Clean();
+    
+    // Shrani rezultate ob koncu
+    scoreManager.SaveToFile("scores.dat");
 }
 
 void Game::SaveReplayFrame() {
