@@ -44,7 +44,8 @@ void Map::Render(SDL_Renderer* renderer) {
 bool Map::IsWall(int x, int y) const {
     int tileX = x / 64;
     int tileY = y / 64;
-    if (tileY >= 0 && tileY < static_cast<int>(tiles.size()) {
+    
+    if (tileY >= 0 && tileY < static_cast<int>(tiles.size())) {
         if (tileX >= 0 && tileX < static_cast<int>(tiles[tileY].size())) {
             return tiles[tileY][tileX] != 0;
         }
