@@ -19,7 +19,7 @@ public:
     bool isActive;
     
 private:
-    void CalculatePath(const Vec2& target, const Map& map);
+    void CalculatePath(const Vec2& target);
     void MoveAlongPath(float deltaTime);
     
     float speed;

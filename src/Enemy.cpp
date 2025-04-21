@@ -46,18 +46,24 @@ void Enemy::AttackPlayer(Player& player) {
     player.TakeDamage(1);
 }
 
-void Enemy::CalculatePath(const Vec2& target, const Map& map) {
+void Enemy::CalculatePath(const Vec2& target) {
     currentPath.clear();
     
     Vec2 current = {position.x / 32, position.y / 32};
     Vec2 goal = {target.x / 32, target.y / 32};
     
+    // Use map for pathfinding
     while(current.x != goal.x || current.y != goal.y) {
-        if(current.x < goal.x) current.x++;
-        else if(current.x > goal.x) current.x--;
+        // Check if next tile is walkable
+        if(current.x < goal.x && map.IsPositionWalkable({(current.x+1)*32, current.y*32})) 
+            current.x++;
+        else if(current.x > goal.x && map.IsPositionWalkable({(current.x-1)*32, current.y*32}))
+            current.x--;
         
-        if(current.y < goal.y) current.y++;
-        else if(current.y > goal.y) current.y--;
+        if(current.y < goal.y && map.IsPositionWalkable({current.x*32, (current.y+1)*32}))
+            current.y++;
+        else if(current.y > goal.y && map.IsPositionWalkable({current.x*32, (current.y-1)*32}))
+            current.y--;
         
         currentPath.push_back({current.x * 32, current.y * 32});
     }
