@@ -1,17 +1,20 @@
 #pragma once
-#include <SDL2/SDL.h>
+#include "common.hpp"
 
 class Animal {
 public:
-    Animal(int x, int y, int type);
-    ~Animal();
+    Animal(Vec2 position, int value);
     
-    void Update();
-    void Render(SDL_Renderer* renderer);
-    bool CanBeCollected() const;
-
+    bool isReadyForCollection() const;  // camelCase po vzoru GameRPA-13
+    int getValue() const;               // camelCase po vzoru GameRPA-13
+    void update(float deltaTime);
+    void render(SDL_Renderer* renderer);
+    
+    Vec2 position;
+    bool rescued = false;
+    
 private:
-    int x, y;
-    int type;
-    SDL_Texture* texture;
+    int value;
+    float rescueTime = 0.0f;
+    float rescueDuration = 2.0f;  // 2 sekunde za rešitev
 };

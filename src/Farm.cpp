@@ -11,6 +11,7 @@ Farm::~Farm() {
     for (auto animal : animals) {
         delete animal;
     }
+    animals.clear();
 }
 
 void Farm::Update() {
@@ -35,16 +36,18 @@ void Farm::AddAnimal(Animal* animal) {
 int Farm::CollectAnimals() {
     int collected = 0;
     
-    // Uporabi std::remove_if iz algorithm
-    auto it = std::remove_if(animals.begin(), animals.end(),
-        [&collected](Animal& animal) {
-            if (animal.IsReadyForCollection()) {
-                collected += animal.GetValue();
-                return true;
-            }
-            return false;
-        });
+    // Uporabi remove-erase idiom kot v GameRPA-13
+    animals.erase(
+        std::remove_if(animals.begin(), animals.end(),
+            [&collected](Animal* animal) {  // Uporabi Animal* namesto Animal&
+                if (animal->isReadyForCollection()) {  // Uporabi -> za kazalce
+                    collected += animal->getValue();
+                    delete animal;  // Pomni zbiranje smeti!
+                    return true;
+                }
+                return false;
+            }),
+        animals.end());
     
-    animals.erase(it, animals.end());
     return collected;
 }

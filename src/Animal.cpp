@@ -1,9 +1,9 @@
 #include "Animal.hpp"
 #include "TextureManager.hpp"
+#include <SDL2/SDL.h>
 
-Animal::Animal(int x, int y, int type) : x(x), y(y), type(type) {
-    texture = TextureManager::getInstance().get(type == 1 ? "animal1" : "animal3");
-}
+Animal::Animal(Vec2 position, int value) : 
+    position(position), value(value) {}
 
 Animal::~Animal() {
     // Texture managed by TextureManager
@@ -20,4 +20,12 @@ void Animal::Render(SDL_Renderer* renderer) {
 
 bool Animal::CanBeCollected() const {
     return true; // Additional conditions would go here
+}
+
+bool Animal::isReadyForCollection() const {
+    return rescued;
+}
+
+int Animal::getValue() const {
+    return value;
 }
