@@ -24,9 +24,6 @@ Game::Game() :
     textureManager(TextureManager::getInstance()) {
 }
 
-Game::~Game() {
-    Clean();
-}
 
 Game& Game::Instance() {
     if (!sInstance) {
@@ -36,48 +33,27 @@ Game& Game::Instance() {
 }
 
 bool Game::Init(const char* title, int width, int height) {
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-        return false;
+    if(SDL_Init(SDL_INIT_VIDEO) {
+        std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
+        return false;  // Dodajte return false pri napaki
     }
 
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-    if (!window) {
-        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, 
+                            SDL_WINDOWPOS_CENTERED, width, height, 0);
+    if(!window) {
+        std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
         return false;
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-if (!renderer) {
-    std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
-    return;
-}
-
-    if (TTF_Init() == -1) {
-        std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
+    if(!renderer) {
+        std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    if (!textureManager.load("player", "images/player.png", renderer) ||
-        !textureManager.load("enemy", "images/enemy.png", renderer) ||
-        !textureManager.load("tile0", "images/tile0.png", renderer) ||
-        !textureManager.load("tile1", "images/tile1.png", renderer) ||
-        !textureManager.load("tile2", "images/tile2.png", renderer) ||
-        !textureManager.load("tile3", "images/tile3.png", renderer) ||
-        !textureManager.load("tile4", "images/tile4.png", renderer) ||
-        !textureManager.load("animal1", "images/animal1.png", renderer) ||
-        !textureManager.load("animal3", "images/animal3.png", renderer) ||
-        !textureManager.load("farm", "images/farm.png", renderer) ||
-        !textureManager.load("menu_bg", "images/menu_bg.png", renderer)) {
-        return false;
-    }
-
-    map = new Map();
-    player = new Player();
-    menu = new Menu();
-
+    // Vse inicializacije uspešne
     isRunning = true;
-    return true;
+    return true;  // Dodajte return true na koncu
 }
 
 void Game::Run() {

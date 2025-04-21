@@ -21,7 +21,7 @@ public:
 
 private:
     Game();
-    ~Game()= default;;
+    ~Game()= default;
 
     void HandleEvents();
     void Update();
