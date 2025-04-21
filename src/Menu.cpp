@@ -2,6 +2,8 @@
 #include "Game.hpp"
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -16,14 +18,14 @@ Menu::Menu() : playerName("Player"), startGame(false),
         {"Exit", {300, 380, 200, 50}, false}
     };
     
-    // Load textures
-    background = IMG_LoadTexture(Game::Instance().renderer, "assets/menu_bg.png");
+    // Load textures using GetRenderer()
+    background = IMG_LoadTexture(Game::Instance().GetRenderer(), "assets/menu_bg.png");
     
     TTF_Font* font = TTF_OpenFont("assets/font.ttf", 24);
     if(font) {
         SDL_Color white = {255, 255, 255, 255};
         SDL_Surface* surf = TTF_RenderText_Solid(font, "Animal Rescue", white);
-        titleTexture = SDL_CreateTextureFromSurface(Game::Instance().renderer, surf);
+        titleTexture = SDL_CreateTextureFromSurface(Game::Instance().GetRenderer(), surf);
         SDL_FreeSurface(surf);
         TTF_CloseFont(font);
     }
@@ -165,7 +167,8 @@ void Menu::RenderHighScores(SDL_Renderer* renderer) {
 }
 
 void Menu::AddHighScore(const string& name, int score) {
-    highScores.push_back({name, score});
+    ScoreEntry entry{name, score, 0.0f, 0};  // Initialize all fields
+    highScores.push_back(entry);
     sort(highScores.begin(), highScores.end(), 
         [](const ScoreEntry& a, const ScoreEntry& b) {
             return a.score > b.score;
