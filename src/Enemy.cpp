@@ -1,27 +1,24 @@
+// Enemy.cpp
 #include "Enemy.hpp"
-#include "TextureManager.hpp"
+#include <cmath>
 
-Enemy::Enemy(int x, int y) : x(x), y(y), health(50), damage(10) {
-    texture = TextureManager::getInstance().get("enemy");
-}
-
-Enemy::~Enemy() {
-    // Texture managed by TextureManager
-}
-
-void Enemy::Update() {
-    // Simple AI movement would go here
-}
-
-void Enemy::Render(SDL_Renderer* renderer) {
-    SDL_Rect destRect = {x, y, 50, 50};
-    SDL_RenderCopy(renderer, texture, nullptr, &destRect);
-}
-
-void Enemy::TakeDamage(int amount) {
-    health -= amount;
-}
-
-bool Enemy::IsDead() const {
-    return health <= 0;
+void Enemy::Update(float deltaTime, Vec2 playerPos) {
+    // Izračunaj smer do igralca
+    Vec2 direction = {
+        playerPos.x - position.x,
+        playerPos.y - position.y
+    };
+    
+    float distance = sqrt(direction.x*direction.x + direction.y*direction.y);
+    
+    // Če je igralec v dosegu, zasleduj
+    if(distance < detectionRange) {
+        if(distance > 0) {
+            direction.x /= distance;
+            direction.y /= distance;
+        }
+        
+        position.x += direction.x * speed * deltaTime;
+        position.y += direction.y * speed * deltaTime;
+    }
 }

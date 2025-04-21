@@ -1,19 +1,16 @@
+// Enemy.hpp
 #pragma once
-#include <SDL2/SDL.h>
+#include "common.hpp"
 
 class Enemy {
 public:
-    Enemy(int x, int y);
-    ~Enemy();
-    
-    void Update();
+    Enemy(Vec2 startPos);
+    void Update(float deltaTime, Vec2 playerPos);
     void Render(SDL_Renderer* renderer);
-    void TakeDamage(int amount);
-    bool IsDead() const;
+    Vec2 GetPosition() const;
 
 private:
-    int x, y;
-    int health;
-    int damage;
-    SDL_Texture* texture;
+    Vec2 position;
+    float speed = 120.0f;
+    float detectionRange = 300.0f;
 };

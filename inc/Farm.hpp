@@ -1,19 +1,21 @@
+// Farm.hpp
 #pragma once
-#include <SDL2/SDL.h>
-#include <vector>
+#include "common.hpp"
 #include "Animal.hpp"
+#include <vector>
 
 class Farm {
 public:
-    Farm();
-    ~Farm();
-    
-    void Update();
+    Farm(Vec2 position);
+    void Update(float deltaTime, const Vec2& playerPos);
     void Render(SDL_Renderer* renderer);
-    void AddAnimal(Animal* animal);
-    int CollectAnimals();
+    bool IsDiscovered() const;
+    bool HasMainBull() const;
+    std::vector<Animal*>& GetAnimals();
 
 private:
+    Vec2 position;
+    bool isDiscovered = false;
     std::vector<Animal*> animals;
-    SDL_Texture* texture;
+    float discoveryRadius = 200.0f;
 };

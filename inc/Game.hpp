@@ -40,5 +40,27 @@ private:
     Player* player;
     Map* map;
     Menu* menu;
+    float currentLevelTime = 0.0f;
+    const float levelTimeLimit = 120.0f; // 2 minuti
+    int currentLevel = 1;
+    std::string playerName;
+    
+    // Sistemi
+    ScoreManager scoreManager;
+    ReplaySystem replaySystem;
+    Menu menu;
+    
+    // Komponente
+    std::vector<Enemy> enemies;
+    std::vector<std::unique_ptr<Farm>> farms;
+    
+    // Pomožne metode
+    void SaveReplayFrame();
+    void CheckLevelCompletion();
+    void RenderUI();
+    void RenderPauseMenu();
+    void RenderGameOver();
+    void RenderLevelComplete();
+    void LoadLevel(int level);
     
 };

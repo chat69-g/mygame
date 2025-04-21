@@ -89,20 +89,103 @@ bool Game::Init(const char* title, int width, int height) {
 
 void Game::Run() {
     Uint32 lastTime = SDL_GetTicks();
+    float deltaTime = 0.0f;
     
-    while (IsRunning()) {
+    // Inicializacija igre
+    LoadLevel(1); // Naloži prvo stopnjo
+    scoreManager.LoadFromFile("scores.json");
+    
+    while (isRunning) {
+        // Izračunaj deltaTime
         Uint32 currentTime = SDL_GetTicks();
-        (void)lastTime;  // Izognemo se opozorilu o neuporabljeni spremenljivki
+        deltaTime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
-
+        
+        // 1. Obdelaj vnose
         HandleEvents();
-        Update();
+        
+        // 2. Posodobi stanje igre
+        if (currentState == GameState::PLAYING) {
+            // Posodobi igralca
+            player.Update(deltaTime);
+            
+            // Posodobi nasprotnike
+            for (auto& enemy : enemies) {
+                enemy.Update(deltaTime, player.GetPosition());
+            }
+            
+            // Posodobi farme
+            for (auto& farm : farms) {
+                farm->Update(deltaTime, player.GetPosition());
+            }
+            
+            // Posodobi časovno omejitev
+            currentLevelTime += deltaTime;
+            if (currentLevelTime >= levelTimeLimit) {
+                player.TakeDamage(1); // Kazen za prekoračitev časa
+                currentLevelTime = 0.0f;
+            }
+            
+            // Shrani stanje za replay
+            SaveReplayFrame();
+            
+            // Preveri konec stopnje
+            CheckLevelCompletion();
+        }
+        
+        // 3. Izriši prikaz
         Render();
-
+        
+        // 4. Omeji FPS
         Uint32 frameTime = SDL_GetTicks() - currentTime;
-        if (frameTime < 16) {
+        if (frameTime < 16) { // ~60 FPS
             SDL_Delay(16 - frameTime);
         }
+    }
+    
+    // Shrani rezultate ob koncu
+    scoreManager.SaveToFile("scores.json");
+    replaySystem.SaveToFile("replay.txt");
+}
+
+void Game::SaveReplayFrame() {
+    GameSnapshot snapshot;
+    snapshot.playerPos = player.GetPosition();
+    snapshot.timestamp = currentLevelTime;
+    
+    for (const auto& enemy : enemies) {
+        snapshot.enemyPositions.push_back(enemy.GetPosition());
+    }
+    
+    replaySystem.RecordFrame(snapshot);
+}
+
+void Game::CheckLevelCompletion() {
+    // Preveri ali je glavni bik rešen
+    bool mainBullRescued = false;
+    for (const auto& farm : farms) {
+        if (farm->HasMainBull() && farm->IsEmpty()) {
+            mainBullRescued = true;
+            break;
+        }
+    }
+    
+    if (mainBullRescued) {
+        // Shrani rezultat
+        ScoreEntry entry {
+            playerName,
+            player.GetScore(),
+            currentLevelTime,
+            currentLevel
+        };
+        scoreManager.AddScore(entry);
+        
+        ChangeState(GameState::LEVEL_COMPLETE);
+    }
+    
+    // Preveri smrt igralca
+    if (player.IsDead()) {
+        ChangeState(GameState::GAME_OVER);
     }
 }
 
@@ -127,31 +210,78 @@ void Game::HandleEvents() {
     }
 }
 
+float levelTimeLimit = 120.0f; // 2 minuti za stopnjo
+float currentLevelTime = 0.0f;
 
-
-void Game::Update() {
-    if (currentState == PLAYING && player) {
-        player->Update();  // Posodabljamo igralca
+void Game::Update(float deltaTime) {
+    if(currentState == GameState::PLAYING) {
+        currentLevelTime += deltaTime;
+        if(currentLevelTime >= levelTimeLimit) {
+            player.TakeDamage(1);
+            currentLevelTime = 0.0f;
+        }
+        
+        // Preveri konec stopnje
+        bool mainBullRescued = false;
+        for(auto& farm : farms) {
+            if(farm->HasMainBull() && farm->GetAnimals().empty()) {
+                mainBullRescued = true;
+                break;
+            }
+        }
+        
+        if(mainBullRescued) {
+            ChangeState(GameState::LEVEL_COMPLETE);
+        }
     }
 }
 
 void Game::Render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    std::cout << "Current state: " << currentState << std::endl;
+    
     switch (currentState) {
-        case MENU:
-            menu->Render(renderer);
+        case GameState::MENU:
+            menu.Render(renderer);
             break;
-        case PLAYING:
+            
+        case GameState::PLAYING:
+            // Izriši mapo
             map->Render(renderer);
-            player->Render(renderer);
+            
+            // Izriši farme
+            for (const auto& farm : farms) {
+                farm->Render(renderer);
+            }
+            
+            // Izriši nasprotnike
+            for (const auto& enemy : enemies) {
+                enemy.Render(renderer);
+            }
+            
+            // Izriši igralca
+            player.Render(renderer);
+            
+            // Izriši UI (življenja, čas, točke)
+            RenderUI();
             break;
-        case GAME_OVER:
+            
+        case GameState::PAUSED:
+            // Izriši igro + prekrivni meni
+            map->Render(renderer);
+            player.Render(renderer);
+            RenderPauseMenu();
+            break;
+            
+        case GameState::GAME_OVER:
             RenderGameOver();
             break;
+            
+        case GameState::LEVEL_COMPLETE:
+            RenderLevelComplete();
+            break;
     }
-
+    
     SDL_RenderPresent(renderer);
 }
 
