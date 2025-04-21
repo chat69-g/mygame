@@ -9,8 +9,9 @@ public:
     void Update();
     void Render(SDL_Renderer* renderer);
     bool CanBeCollected() const;
-    bool IsRescued() const;
+    bool IsRescued() const { return isRescued; }
     int GetValue() const;
+    int GetScoreValue() const { return scoreValue; }
 
     // Dodano za premikanje bika
     void MoveRandomly();

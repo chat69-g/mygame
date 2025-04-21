@@ -1,5 +1,6 @@
 #include "Farm.hpp"
 #include "TextureManager.hpp"
+#include <algorithm> 
 
 Farm::Farm() {
     texture = TextureManager::getInstance().get("farm");
@@ -32,14 +33,26 @@ void Farm::AddAnimal(Animal* animal) {
 
 int Farm::CollectAnimals() {
     int collected = 0;
-    animals.erase(std::remove_if(animals.begin(), animals.end(),
-        [&collected](Animal* a) {
-            if (a->CanBeCollected()) {
-                collected += a->GetValue();
-                delete a;
-                return true;
-            }
-            return false;
-        }), animals.end());
+    
+    // Uporaba std::remove_if z algoritmom
+    animals.erase(
+        std::remove_if(animals.begin(), animals.end(),
+            [&collected](Animal* animal) {
+                if (animal->IsRescued()) {
+                    collected += animal->GetScoreValue();
+                    delete animal;
+                    return true;
+                }
+                return false;
+            }),
+        animals.end());
+    
     return collected;
+}
+
+Farm::~Farm() {
+    for (auto animal : animals) {
+        delete animal;
+    }
+    animals.clear();
 }
