@@ -9,7 +9,7 @@ Menu::Menu() : startGame(false) {
     TextureManager& tm = TextureManager::getInstance();
     background = tm.get("menu_bg");
     
-    // Load high scores from file would go here
+    // Inicializacija naslova in high scores
     highScores = {
         {"Player1", 1000, time(nullptr), 1},
         {"Player2", 800, time(nullptr), 1},
@@ -52,10 +52,8 @@ void Menu::Render(SDL_Renderer* renderer) {
     }
 }
 
-bool Menu::StartGame() {
-    bool shouldStart = startGame;
-    startGame = false; // Resetiraj za naslednji klic
-    return shouldStart;
+bool Menu::StartGame() const {
+    return startGame;
 }
 
 void Menu::AddHighScore(const std::string& name, int score) {

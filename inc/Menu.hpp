@@ -15,12 +15,10 @@ class Menu {
 public:
     Menu();
     ~Menu();
-    
-    bool StartGame() const;
-    void HandleEvents(SDL_Event& event);
+
+     void HandleEvents(SDL_Event& event);
     void Render(SDL_Renderer* renderer);
-    bool StartGame() const;
-    
+    bool StartGame() const;  // Samo ena deklaracija
     void AddHighScore(const std::string& name, int score);
 
 private:
