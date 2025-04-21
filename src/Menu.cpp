@@ -1,9 +1,10 @@
 #include "Menu.hpp"
-#include "Game.hpp"
 #include "TextureManager.hpp"
 #include <SDL2/SDL_ttf.h>
 #include <ctime>
 #include <algorithm>
+#include <iostream>  // Dodano za std::cout
+#include <ostream>   // Dodano za std::endl
 
 Menu::Menu() : startGame(false) {
     TextureManager& tm = TextureManager::getInstance();
@@ -24,17 +25,16 @@ Menu::~Menu() {
 void Menu::HandleEvents(SDL_Event& event) {
     if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
         startGame = true;
-        std::cout << "ENTER pressed - startGame set to true" << std::endl; // Debug
+        std::cout << "ENTER pressed - startGame set to true" << std::endl;
     }
 }
 
 bool Menu::StartGame() const {
-    std::cout << "Checking startGame: " << startGame << std::endl; // Debug
+    std::cout << "Checking startGame: " << startGame << std::endl;
     return startGame;
 }
 
 void Menu::Render(SDL_Renderer* renderer) {
-    // Render background
     SDL_RenderCopy(renderer, background, nullptr, nullptr);
     
     // Render high scores
@@ -56,10 +56,6 @@ void Menu::Render(SDL_Renderer* renderer) {
     }
 }
 
-bool Menu::StartGame() const {
-    return startGame;
-}
-
 void Menu::AddHighScore(const std::string& name, int score) {
     highScores.push_back({name, score, time(nullptr), 1});
     std::sort(highScores.begin(), highScores.end(), 
@@ -67,5 +63,4 @@ void Menu::AddHighScore(const std::string& name, int score) {
     if (highScores.size() > 10) {
         highScores.resize(10);
     }
-    // Save to file would go here
 }
