@@ -1,19 +1,20 @@
 #include "Animal.hpp"
+#include "Game.hpp"
+#include <SDL2/SDL_image.h>
 #include "TextureManager.hpp"
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 
-Animal::Animal(int x, int y) : 
-    x(x), y(y), isRescued(false), moveCounter(0), moveDirection(0) {
-    texture = TextureManager::getInstance().get("bull"); // Preimenujte sliko v bull.png
-    std::srand(std::time(0));
-}
+Animal::Animal(Vec2 position, int scoreValue) : 
+    position(position), scoreValue(scoreValue) {}  // Inicializacija scoreValue
+
 
 Animal::~Animal() {
     // Texture je upravljan s TextureManagerjem
 }
 
-void Animal::Update() {
+void Animal::Update(float deltaTime) {
     MoveRandomly();
 }
 
@@ -42,9 +43,7 @@ bool Animal::CanBeCollected() const {
     return !isRescued;
 }
 
-bool Animal::IsRescued() const {
-    return isRescued;
-}
+
 
 int Animal::GetValue() const {
     return 50; // Vrednost bika

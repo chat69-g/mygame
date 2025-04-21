@@ -1,25 +1,22 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include "common.hpp"
 
 class Animal {
-public:
-    Animal(int x, int y);
-    ~Animal();
-    
-    void Update();
-    void Render(SDL_Renderer* renderer);
-    bool CanBeCollected() const;
-    bool IsRescued() const { return isRescued; }
-    int GetValue() const;
-    int GetScoreValue() const { return scoreValue; }
-
-    // Dodano za premikanje bika
-    void MoveRandomly();
-
-private:
-    int x, y;
-    bool isRescued;
-    SDL_Texture* texture;
-    int moveCounter;
-    int moveDirection; // 0=gor, 1=desno, 2=dol, 3=levo
-};
+    public:
+        Animal(Vec2 position, int scoreValue);  // Dodajte parameter scoreValue
+        
+        bool IsRescued() const { return isRescued; }
+        int GetScoreValue() const { return scoreValue; }  // Definicija tukaj
+        
+        void Update(float deltaTime);
+        void Render(SDL_Renderer* renderer);
+        
+        Vec2 position;
+        bool isRescued = false;
+        
+    private:
+        int scoreValue;  // Dodajte člansko spremenljivko
+        float rescueTime = 0.0f;
+        float rescueDuration = 2.0f;
+    };
