@@ -1,3 +1,7 @@
+#ifdef _WIN32
+#undef main  // Fix for Windows
+#endif
+
 #include "Game.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -8,7 +12,7 @@
 
 using namespace std;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]){
     (void)argc;  // Mark unused parameters explicitly
     (void)argv;
 

@@ -1,6 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -Werror -Iinc -IC:/SDL2/include
-LDFLAGS = -LC:/SDL2/lib -lSDL2 -lSDL2_image -lSDL2_ttf
+LDFLAGS = -LC:/SDL2/lib -lSDL2 -lSDL2_image -lSDL2_ttf -lmingw32 -mwindows
+
 
 SRCDIR = src
 OBJDIR = obj
