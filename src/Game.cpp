@@ -72,18 +72,18 @@ bool Game::Init(const char* title, int width, int height) {
     }
 
     // Nalaganje tekstur
-    if (!textureManager.load("player", "images/player.png", renderer) ||
-        !textureManager.load("enemy", "images/enemy.png", renderer) ||
-        !textureManager.load("tile0", "images/tile0.png", renderer) ||
-        !textureManager.load("tile1", "images/tile1.png", renderer) ||
-        !textureManager.load("tile2", "images/tile2.png", renderer) ||
-        !textureManager.load("tile3", "images/tile3.png", renderer) ||
-        !textureManager.load("tile4", "images/tile4.png", renderer) ||
-        !textureManager.load("animal1", "images/animal1.png", renderer) ||
-        !textureManager.load("animal3", "images/animal3.png", renderer) ||
-        !textureManager.load("farm", "images/farm.png", renderer) ||
-        !textureManager.load("menu_bg", "images/menu_bg.png", renderer)) {
-        return false;
+    if (!textureManager.load("player", "player.png", renderer) ||
+        !textureManager.load("enemy", "enemy.png", renderer) ||
+        !textureManager.load("tile0", "tile0.png", renderer) ||
+        !textureManager.load("tile1", "tile1.png", renderer) ||
+        !textureManager.load("tile2", "tile2.png", renderer) ||
+        !textureManager.load("tile3", "tile3.png", renderer) ||
+        !textureManager.load("tile4", "tile4.png", renderer) ||
+        !textureManager.load("bull", "bull.png", renderer) ||
+        !textureManager.load("farm", "farm.png", renderer) ||
+        !textureManager.load("menu_bg", "menu_bg.png", renderer)) {
+            std::cerr << "Failed to load required textures!" << std::endl;
+            return false;
     }
 
     // Inicializacija igralnih objektov
