@@ -12,6 +12,8 @@ class Game {
 public:
     static Game& Instance();
     
+    TextureManager& textureManager;
+
     void Init(const char* title, int width, int height);
     void HandleEvents();
     void Update(float deltaTime);

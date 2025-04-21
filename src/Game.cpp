@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>   // For smart pointers
 #include <cmath>    // For math functions
+#include "TextureManager.hpp"
 
 using namespace std;
 
