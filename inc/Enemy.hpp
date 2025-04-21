@@ -1,6 +1,6 @@
-// Enemy.hpp
 #pragma once
 #include "common.hpp"
+#include "Vec2.hpp"
 
 class Enemy {
 public:
@@ -11,6 +11,7 @@ public:
 
 private:
     Vec2 position;
+    Vec2 velocity;
     float speed = 120.0f;
     float detectionRange = 300.0f;
 };

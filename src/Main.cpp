@@ -14,7 +14,7 @@
 
 using namespace std;
 
-int main(int /*argc*/, char* /*argv*/[]) {
+int main(int argc, char* argv[]) {
     // Inicializacija igre
     if (!Game::Instance().Init("My Farm Game", 800, 600)) {
         return -1;  // Napaka pri inicializaciji

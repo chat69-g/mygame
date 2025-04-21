@@ -1,24 +1,25 @@
-// Enemy.cpp
 #include "Enemy.hpp"
 #include <cmath>
 #include "Game.hpp"
 
 Enemy::Enemy(Vec2 startPos) : position(startPos) {}
 
-void Enemy::Update(float deltaTime) {
+void Enemy::Update(float deltaTime, Vec2 playerPos) {
     const Player& player = Game::Instance().GetPlayer();
     Vec2 direction = {
-        player.position.x - position.x,
-        player.position.y - position.y
+        playerPos.x - position.x,
+        playerPos.y - position.y
     };
     
-    float distance = std::sqrt(direction.x*direction.x + direction.y*direction.y);
-    
-    if (distance < detectionRange && distance > 0) {
-        direction.x /= distance;
-        direction.y /= distance;
-        
-        position.x += direction.x * speed * deltaTime;
-        position.y += direction.y * speed * deltaTime;
+    float length = sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (length > 0) {
+        direction.x /= length;
+        direction.y /= length;
     }
+    
+    velocity.x = direction.x * speed;
+    velocity.y = direction.y * speed;
+    
+    position.x += velocity.x * deltaTime;
+    position.y += velocity.y * deltaTime;
 }
