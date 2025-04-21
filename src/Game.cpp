@@ -113,21 +113,11 @@ void Game::HandleEvents() {
             isRunning = false;
         }
 
-        switch (currentState) {
-            case MENU:
-                menu->HandleEvents(event);
-                if (menu->StartGame()) {
-                    currentState = PLAYING;
-                }
-                break;
-            case PLAYING:
-                player->HandleEvent(event);
-                break;
-            case GAME_OVER:
-                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_r) {
-                    Reset();
-                }
-                break;
+        if (currentState == PLAYING) {
+            player->HandleEvent(event);  // Posredujemo dogodke igralcu
+        }
+        else if (currentState == MENU) {
+            menu->HandleEvents(event);
         }
     }
 }
@@ -135,20 +125,8 @@ void Game::HandleEvents() {
 
 
 void Game::Update() {
-    switch (currentState) {
-        case MENU:
-            if (menu->StartGame()) {
-                currentState = PLAYING;
-            }
-            break;
-        case PLAYING:
-            player->Update();
-            if (player->IsDead()) {
-                currentState = GAME_OVER;
-            }
-            break;
-        case GAME_OVER:
-            break;
+    if (currentState == PLAYING && player) {
+        player->Update();  // Posodabljamo igralca
     }
 }
 

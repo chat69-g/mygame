@@ -1,10 +1,9 @@
 #include "Player.hpp"
 #include "TextureManager.hpp"
 #include "Game.hpp"
+#include <iostream>
 
-Player::Player() : 
-    x(100), y(100), width(50), height(50), 
-    health(100), speed(5) {
+Player::Player() : x(100), y(100), width(50), height(50), speed(5) {
     texture = TextureManager::getInstance().get("player");
 }
 
@@ -20,6 +19,7 @@ void Player::HandleEvent(SDL_Event& event) {
             case SDLK_a: x -= speed; break;
             case SDLK_d: x += speed; break;
         }
+        std::cout << "Player position: (" << x << ", " << y << ")" << std::endl;
     }
 }
 
@@ -31,7 +31,6 @@ void Player::Render(SDL_Renderer* renderer) {
     SDL_Rect destRect = {x, y, width, height};
     SDL_RenderCopy(renderer, texture, nullptr, &destRect);
 }
-
 bool Player::IsDead() const {
     return health <= 0;
 }
