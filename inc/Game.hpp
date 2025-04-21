@@ -16,7 +16,7 @@ public:
     void Run();
     void Clean();
     
-    SDL_Renderer* GetRenderer() const;
+    SDL_Renderer* GetRenderer() const { return renderer; }
     bool IsRunning() const;
 
 private:

@@ -1,20 +1,24 @@
 #pragma once
-#include "common.hpp"
+#include <SDL2/SDL.h>
 
 class Animal {
 public:
-    Animal(Vec2 position, int value);
+    Animal(int x, int y);
+    ~Animal();
     
-    bool isReadyForCollection() const;  // camelCase po vzoru GameRPA-13
-    int getValue() const;               // camelCase po vzoru GameRPA-13
-    void update(float deltaTime);
-    void render(SDL_Renderer* renderer);
-    
-    Vec2 position;
-    bool rescued = false;
-    
+    void Update();
+    void Render(SDL_Renderer* renderer);
+    bool CanBeCollected() const;
+    bool IsRescued() const;
+    int GetValue() const;
+
+    // Dodano za premikanje bika
+    void MoveRandomly();
+
 private:
-    int value;
-    float rescueTime = 0.0f;
-    float rescueDuration = 2.0f;  // 2 sekunde za rešitev
+    int x, y;
+    bool isRescued;
+    SDL_Texture* texture;
+    int moveCounter;
+    int moveDirection; // 0=gor, 1=desno, 2=dol, 3=levo
 };

@@ -30,8 +30,8 @@ void Farm::Render(SDL_Renderer* renderer) {
     }
 }
 
-void Farm::AddAnimal(Animal* animal) {
-    animals.push_back(animal);
+void Farm::AddAnimal(int x, int y) {
+    animals.push_back(new Animal(x, y));
 }
 
 int Farm::CollectAnimals() {
