@@ -116,18 +116,22 @@ void Game::HandleEvents() {
         switch (currentState) {
             case MENU:
                 menu->HandleEvents(event);
+                if (menu->StartGame()) {
+                    currentState = PLAYING;
+                }
                 break;
             case PLAYING:
                 player->HandleEvent(event);
                 break;
             case GAME_OVER:
                 if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_r) {
-                    this->Reset();  // Popravljen klic na this->Reset()
+                    Reset();
                 }
                 break;
         }
     }
 }
+
 
 
 void Game::Update() {

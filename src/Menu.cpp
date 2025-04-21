@@ -22,8 +22,10 @@ Menu::~Menu() {
 }
 
 void Menu::HandleEvents(SDL_Event& event) {
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
-        startGame = true;
+    if (event.type == SDL_KEYDOWN) {
+        if (event.key.keysym.sym == SDLK_RETURN) {
+            startGame = true;
+        }
     }
 }
 
@@ -50,8 +52,10 @@ void Menu::Render(SDL_Renderer* renderer) {
     }
 }
 
-bool Menu::StartGame() const {
-    return startGame;
+bool Menu::StartGame() {
+    bool shouldStart = startGame;
+    startGame = false; // Resetiraj za naslednji klic
+    return shouldStart;
 }
 
 void Menu::AddHighScore(const std::string& name, int score) {
