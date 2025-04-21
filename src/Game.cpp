@@ -17,9 +17,9 @@ Game::Game() :
     window(nullptr),
     renderer(nullptr),
     isRunning(false),
-    currentState(MENU),  // Keep this first
-    textureManager(TextureManager::getInstance()),
-    player(nullptr),     // Then this
+    currentState(MENU),
+    textureManager(TextureManager::getInstance()),  // Matches declaration order
+    player(nullptr),
     map(nullptr),
     menu(nullptr) {
 }
