@@ -1,7 +1,8 @@
 #include "Animal.hpp"
 #include "Game.hpp"
 #include <SDL2/SDL_image.h>
-#include <iostream>  // Add this include
+#include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -14,10 +15,10 @@ Animal::Animal(const Vec2& pos, int type) :
         "assets/animal3.png"
     };
     
-// Use the new GetRenderer() method
-texture = IMG_LoadTexture(Game::Instance().GetRenderer(), paths[type].c_str());
-if(!texture) {
-    cerr << "Failed to load animal texture: " << IMG_GetError() << endl;
+    texture = IMG_LoadTexture(Game::Instance().GetRenderer(), paths[type].c_str());
+    if(!texture) {
+        cerr << "Failed to load animal texture: " << IMG_GetError() << endl;
+    }
 }
 
 void Animal::Update(float deltaTime) {

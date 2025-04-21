@@ -1,6 +1,8 @@
 #include "Enemy.hpp"
 #include "Game.hpp"
+#include "Player.hpp"
 #include <SDL2/SDL_image.h>
+#include <iostream>
 #include <cmath>
 #include <queue>
 
@@ -10,7 +12,7 @@ Enemy::Enemy(const Vec2& startPos) :
     position(startPos), velocity{0,0}, health(3), isActive(true),
     speed(150.0f), attackRange(50.0f), detectionRange(200.0f) {
     
-    texture = IMG_LoadTexture(Game::Instance().renderer, "assets/enemy.png");
+    texture = IMG_LoadTexture(Game::Instance().GetRenderer(), "assets/enemy.png");
     if(!texture) {
         cerr << "Failed to load enemy texture: " << IMG_GetError() << endl;
     }
@@ -19,17 +21,14 @@ Enemy::Enemy(const Vec2& startPos) :
 void Enemy::Update(float deltaTime, const Player& player, const Map& map) {
     if(!isActive) return;
 
-    // Simple AI: Chase player if in range
     float distToPlayer = sqrt(pow(player.position.x - position.x, 2) + 
                          pow(player.position.y - position.y, 2));
 
     if(distToPlayer < detectionRange) {
         if(distToPlayer > attackRange) {
-            // Pathfind toward player
             CalculatePath(player.position, map);
             MoveAlongPath(deltaTime);
         } else {
-            // Attack player
             AttackPlayer(const_cast<Player&>(player));
         }
     }
@@ -48,13 +47,11 @@ void Enemy::AttackPlayer(Player& player) {
 }
 
 void Enemy::CalculatePath(const Vec2& target, const Map& map) {
-    // Simplified A* pathfinding - would be more robust in real implementation
     currentPath.clear();
     
     Vec2 current = {position.x / 32, position.y / 32};
     Vec2 goal = {target.x / 32, target.y / 32};
     
-    // Simple straight-line path for this example
     while(current.x != goal.x || current.y != goal.y) {
         if(current.x < goal.x) current.x++;
         else if(current.x > goal.x) current.x--;
@@ -72,18 +69,15 @@ void Enemy::MoveAlongPath(float deltaTime) {
     Vec2 target = currentPath.front();
     Vec2 direction = {target.x - position.x, target.y - position.y};
     
-    // Normalize direction
     float length = sqrt(direction.x * direction.x + direction.y * direction.y);
     if(length > 0) {
         direction.x /= length;
         direction.y /= length;
     }
     
-    // Move toward target
     position.x += direction.x * speed * deltaTime;
     position.y += direction.y * speed * deltaTime;
     
-    // Check if reached current waypoint
     if(abs(position.x - target.x) < 5 && abs(position.y - target.y) < 5) {
         currentPath.erase(currentPath.begin());
     }

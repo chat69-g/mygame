@@ -1,7 +1,9 @@
 #pragma once
 #include "common.hpp"
-#include "Player.hpp"
+#include "Map.hpp"  // Added this include
 #include <vector>
+
+class Player;  // Forward declaration
 
 class Enemy {
 public:
