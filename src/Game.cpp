@@ -1,210 +1,194 @@
 #include "Game.hpp"
-#include <SDL2/SDL_image.h>
-#include <iostream>
-#include <memory>   // For smart pointers
-#include <cmath>    // For math functions
 #include "TextureManager.hpp"
+#include "Player.hpp"
+#include "Map.hpp"
+#include "Enemy.hpp"
+#include "Animal.hpp"
+#include "Farm.hpp"
+#include "Menu.hpp"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <iostream>
 
-using namespace std;
+Game* Game::sInstance = nullptr;
 
-Game& Game::Instance() {
-    static Game instance;
-    return instance;
+Game::Game() : 
+    window(nullptr),
+    renderer(nullptr),
+    isRunning(false),
+    currentState(MENU),
+    player(nullptr),
+    map(nullptr),
+    menu(nullptr),
+    textureManager(TextureManager::getInstance()) {
 }
 
-Game::Game() : isRunning(false), window(nullptr), renderer(nullptr), 
-               currentState(GameState::MENU), currentLevel(1) {}
+Game::~Game() {
+    Clean();
+}
 
-void Game::Init(const char* title, int width, int height) {
-    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
-        cerr << "SDL could not initialize! Error: " << SDL_GetError() << endl;
-        return;
+Game& Game::Instance() {
+    if (!sInstance) {
+        sInstance = new Game();
+    }
+    return *sInstance;
+}
+
+bool Game::Init(const char* title, int width, int height) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        return false;
     }
 
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, 
-                             SDL_WINDOWPOS_CENTERED, width, height, 0);
-    if(!window) {
-        cerr << "Window could not be created! Error: " << SDL_GetError() << endl;
-        return;
+    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
+    if (!window) {
+        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        return false;
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(!renderer) {
-        cerr << "Renderer could not be created! Error: " << SDL_GetError() << endl;
-        return;
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer) {
+        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+        return false;
     }
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    if (TTF_Init() == -1) {
+        std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
+
+    if (!textureManager.load("player", "images/player.png", renderer) ||
+        !textureManager.load("enemy", "images/enemy.png", renderer) ||
+        !textureManager.load("tile0", "images/tile0.png", renderer) ||
+        !textureManager.load("tile1", "images/tile1.png", renderer) ||
+        !textureManager.load("tile2", "images/tile2.png", renderer) ||
+        !textureManager.load("tile3", "images/tile3.png", renderer) ||
+        !textureManager.load("tile4", "images/tile4.png", renderer) ||
+        !textureManager.load("animal1", "images/animal1.png", renderer) ||
+        !textureManager.load("animal3", "images/animal3.png", renderer) ||
+        !textureManager.load("farm", "images/farm.png", renderer) ||
+        !textureManager.load("menu_bg", "images/menu_bg.png", renderer)) {
+        return false;
+    }
+
+    map = new Map();
+    player = new Player();
+    menu = new Menu();
+
     isRunning = true;
+    return true;
+}
 
-    // Initialize game components
-    player = make_unique<Player>();
-    map = make_unique<Map>();
-    scoreManager = ScoreManager();
-    scoreManager.LoadFromFile("scores.json");
-
-    LoadLevel(currentLevel);
+void Game::Run() {
+    while (isRunning) {
+        HandleEvents();
+        Update();
+        Render();
+        SDL_Delay(16);
+    }
 }
 
 void Game::HandleEvents() {
     SDL_Event event;
-    while(SDL_PollEvent(&event)) {
-        if(event.type == SDL_QUIT) {
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
             isRunning = false;
         }
 
-        if(currentState == GameState::MENU) {
-            // Menu handles its own events
-            continue;
+        switch (currentState) {
+            case MENU:
+                menu->HandleEvents(event);
+                break;
+            case PLAYING:
+                player->HandleEvent(event);
+                break;
+            case GAME_OVER:
+                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_r) {
+                    Reset();
+                }
+                break;
         }
-
-        if(event.type == SDL_KEYDOWN) {
-            switch(event.key.keysym.sym) {
-                case SDLK_ESCAPE:
-                    if(currentState == GameState::PLAYING) {
-                        ChangeState(GameState::PAUSED);
-                    } else {
-                        ChangeState(GameState::PLAYING);
-                    }
-                    break;
-                case SDLK_F5:
-                    SaveGame();
-                    break;
-                case SDLK_F9:
-                    LoadGame();
-                    break;
-            }
-        }
-    }
-
-    if(currentState == GameState::PLAYING) {
-        player->HandleInput(SDL_GetKeyboardState(nullptr));
     }
 }
 
-void Game::Update(float deltaTime) {
-    if(currentState != GameState::PLAYING) return;
-
-    levelTime += deltaTime;
-    if(levelTime > maxLevelTime) {
-        player->score -= 10; // Penalty for taking too long
-        levelTime = 0;
-    }
-
-    player->Update(deltaTime);
-    
-    for(auto& enemy : enemies) {
-        enemy->Update(deltaTime, *player, *map);
-    }
-
-    for(auto& animal : animals) {
-        animal->Update(deltaTime);
-    }
-
-    for(auto& farm : farms) {
-        farm->Update(deltaTime);
-    }
-
-    // Check win/lose conditions
-    if(player->health <= 0) {
-        ChangeState(GameState::GAME_OVER);
-    }
-
-    bool allAnimalsRescued = all_of(animals.begin(), animals.end(), 
-        [](const unique_ptr<Animal>& a) { return a->isRescued; });
-    
-    if(allAnimalsRescued) {
-        ChangeState(GameState::LEVEL_COMPLETE);
+void Game::Update() {
+    switch (currentState) {
+        case MENU:
+            if (menu->StartGame()) {
+                currentState = PLAYING;
+            }
+            break;
+        case PLAYING:
+            player->Update();
+            if (player->IsDead()) {
+                currentState = GAME_OVER;
+            }
+            break;
+        case GAME_OVER:
+            break;
     }
 }
 
 void Game::Render() {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    map->Render(renderer);
-    
-    for(auto& farm : farms) {
-        farm->Render(renderer);
+    switch (currentState) {
+        case MENU:
+            menu->Render(renderer);
+            break;
+        case PLAYING:
+            map->Render(renderer);
+            player->Render(renderer);
+            break;
+        case GAME_OVER:
+            RenderGameOver();
+            break;
     }
-    
-    for(auto& animal : animals) {
-        animal->Render(renderer);
-    }
-    
-    for(auto& enemy : enemies) {
-        enemy->Render(renderer);
-    }
-    
-    player->Render(renderer);
 
     SDL_RenderPresent(renderer);
 }
 
+void Game::RenderGameOver() {
+    map->Render(renderer);
+    player->Render(renderer);
+    
+    TTF_Font* font = TTF_OpenFont("fonts/arial.ttf", 24);
+    if (!font) {
+        return;
+    }
+
+    SDL_Color white = {255, 255, 255};
+    SDL_Surface* surface = TTF_RenderText_Solid(font, "Game Over! Press R to restart", white);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    
+    SDL_Rect rect = {200, 300, surface->w, surface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+    TTF_CloseFont(font);
+}
+
+void Game::Reset() {
+    delete player;
+    player = new Player();
+    currentState = PLAYING;
+}
+
 void Game::Clean() {
+    delete menu;
+    delete player;
+    delete map;
+
+    textureManager.clean();
+    TTF_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
-void Game::ChangeState(GameState newState) {
-    currentState = newState;
-    
-    if(newState == GameState::LEVEL_COMPLETE) {
-        currentLevel++;
-        if(currentLevel > 2) { // Only 2 levels in this example
-            // Game completed
-            ScoreEntry entry{player->name, player->score, levelTime, currentLevel};
-            scoreManager.AddScore(entry);
-            scoreManager.SaveToFile("scores.json");
-            ChangeState(GameState::MENU);
-        } else {
-            LoadLevel(currentLevel);
-            ChangeState(GameState::PLAYING);
-        }
-    }
-}
-
-void Game::LoadLevel(int level) {
-    levelTime = 0;
-    maxLevelTime = 120.0f - (level * 20); // Less time for higher levels
-    
-    map->Generate(level);
-    player->position = map->GetRandomWalkablePosition();
-    player->health = 3;
-
-    // Clear existing entities
-    enemies.clear();
-    animals.clear();
-    farms.clear();
-
-    // Create enemies based on level
-    int enemyCount = 2 + level;
-    for(int i = 0; i < enemyCount; i++) {
-        Vec2 pos = map->GetRandomWalkablePosition();
-        enemies.push_back(make_unique<Enemy>(pos));
-    }
-
-    // Create animals to rescue
-    int animalCount = 3 + level;
-    for(int i = 0; i < animalCount; i++) {
-        Vec2 pos = map->GetRandomWalkablePosition();
-        animals.push_back(make_unique<Animal>(pos, rand() % 3));
-    }
-
-    // Create hidden farms
-    int farmCount = 1 + level;
-    for(int i = 0; i < farmCount; i++) {
-        Vec2 pos = map->GetRandomWalkablePosition();
-        farms.push_back(make_unique<Farm>(pos));
-    }
-}
-
-void Game::SaveGame() {
-    // Implementation would save player, map, and entities state
-    cout << "Game saved!" << endl;
-}
-
-void Game::LoadGame() {
-    // Implementation would load saved state
-    cout << "Game loaded!" << endl;
+SDL_Renderer* Game::GetRenderer() const {
+    return renderer;
 }

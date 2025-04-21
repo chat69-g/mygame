@@ -1,30 +1,19 @@
 #pragma once
-#include "common.hpp"
-#include "Map.hpp"
-#include <vector>
-
-class Player;  // Forward declaration
+#include <SDL2/SDL.h>
 
 class Enemy {
 public:
-    Enemy(const Vec2& startPos);
+    Enemy(int x, int y);
+    ~Enemy();
     
-    void Update(float deltaTime, const Player& player, const Map& map);
+    void Update();
     void Render(SDL_Renderer* renderer);
-    void AttackPlayer(Player& player);
-    
-    Vec2 position;
-    Vec2 velocity;
-    int health;
-    bool isActive;
-    
+    void TakeDamage(int amount);
+    bool IsDead() const;
+
 private:
-    void CalculatePath(const Vec2& target, const Map& map);  // Added Map parameter
-    void MoveAlongPath(float deltaTime);
-    
-    float speed;
-    float attackRange;
-    float detectionRange;
-    std::vector<Vec2> currentPath;
+    int x, y;
+    int health;
+    int damage;
     SDL_Texture* texture;
 };

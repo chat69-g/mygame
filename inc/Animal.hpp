@@ -1,19 +1,17 @@
 #pragma once
-#include "common.hpp"
+#include <SDL2/SDL.h>
 
 class Animal {
 public:
-    Animal(const Vec2& position, int type);
+    Animal(int x, int y, int type);
+    ~Animal();
     
-    void Update(float deltaTime);
+    void Update();
     void Render(SDL_Renderer* renderer);
-    void Rescue();
-    
-    Vec2 position;
-    bool isRescued;
-    int type;
-    
+    bool CanBeCollected() const;
+
 private:
-    float rescueTime;
+    int x, y;
+    int type;
     SDL_Texture* texture;
 };

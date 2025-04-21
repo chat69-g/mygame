@@ -1,28 +1,19 @@
 #pragma once
-#include "common.hpp"
+#include <SDL2/SDL.h>
 #include <vector>
-
-struct Particle {
-    Vec2 position;
-    Vec2 velocity;
-    float lifetime;
-    Color color;
-};
+#include "Animal.hpp"
 
 class Farm {
 public:
-    Farm(const Vec2& position);
+    Farm();
+    ~Farm();
     
-    void Update(float deltaTime);
+    void Update();
     void Render(SDL_Renderer* renderer);
-    void Destroy();
-    bool IsDestroyed() const { return isDestroyed; }
-    
-    Vec2 position;
-    
+    void AddAnimal(Animal* animal);
+    int CollectAnimals();
+
 private:
-    bool isDestroyed;
-    float destructionProgress;
-    std::vector<Particle> particles;
+    std::vector<Animal*> animals;
     SDL_Texture* texture;
 };
