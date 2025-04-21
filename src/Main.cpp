@@ -1,3 +1,6 @@
+#define SDL_MAIN_HANDLED
+#include <SDL2/SDL.h>
+
 #ifdef _WIN32
 #undef main  // Fix for Windows
 #endif
@@ -13,6 +16,8 @@
 using namespace std;
 
 int main(int argc, char* argv[]){
+    SDL_SetMainReady(); 
+    
     (void)argc;  // Mark unused parameters explicitly
     (void)argv;
 
