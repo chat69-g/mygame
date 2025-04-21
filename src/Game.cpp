@@ -92,13 +92,13 @@ void Game::Run() {
     
     while (IsRunning()) {
         Uint32 currentTime = SDL_GetTicks();
+        (void)lastTime;  // Izognemo se opozorilu o neuporabljeni spremenljivki
         lastTime = currentTime;
 
         HandleEvents();
         Update();
         Render();
 
-        // Ohranjanje 60 FPS
         Uint32 frameTime = SDL_GetTicks() - currentTime;
         if (frameTime < 16) {
             SDL_Delay(16 - frameTime);
@@ -122,12 +122,13 @@ void Game::HandleEvents() {
                 break;
             case GAME_OVER:
                 if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_r) {
-                    Reset();
+                    this->Reset();  // Popravljen klic na this->Reset()
                 }
                 break;
         }
     }
 }
+
 
 void Game::Update() {
     switch (currentState) {

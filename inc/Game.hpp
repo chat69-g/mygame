@@ -12,11 +12,13 @@ public:
     enum GameState { MENU, PLAYING, GAME_OVER };
     
     static Game& Instance();
+    
     bool Init(const char* title, int width, int height);
     void Run();
     void Clean();
+    void Reset();  // Dodana deklaracija za Reset
     
-    SDL_Renderer* GetRenderer() const { return renderer; }
+    SDL_Renderer* GetRenderer() const;
     bool IsRunning() const;
 
 private:
