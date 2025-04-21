@@ -2,7 +2,6 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
-textureManager.load("bull", "images/bull.png", renderer);
 
 TextureManager& TextureManager::getInstance() {
     static TextureManager instance;
