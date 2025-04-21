@@ -1,5 +1,7 @@
 #include "Farm.hpp"
 #include "TextureManager.hpp"
+#include <algorithm> 
+#include <SDL2/SDL.h>
 
 Farm::Farm() {
     texture = TextureManager::getInstance().get("farm");
@@ -32,14 +34,17 @@ void Farm::AddAnimal(Animal* animal) {
 
 int Farm::CollectAnimals() {
     int collected = 0;
-    animals.erase(std::remove_if(animals.begin(), animals.end(),
-        [&collected](Animal* a) {
-            if (a->CanBeCollected()) {
-                collected++;
-                delete a;
+    
+    // Uporabi std::remove_if iz algorithm
+    auto it = std::remove_if(animals.begin(), animals.end(),
+        [&collected](Animal& animal) {
+            if (animal.IsReadyForCollection()) {
+                collected += animal.GetValue();
                 return true;
             }
             return false;
-        }), animals.end());
+        });
+    
+    animals.erase(it, animals.end());
     return collected;
 }
