@@ -35,6 +35,8 @@ private:
     bool isRunning;
     GameState currentState;
     
+    SDL_Renderer* renderer;
+
     Player* player;
     Map* map;
     Menu* menu;

@@ -159,7 +159,7 @@ void Game::RenderGameOver() {
         return;
     }
 
-    SDL_Color white = {255, 255, 255};
+    SDL_Color white = {255, 255, 255, 255};
     SDL_Surface* surface = TTF_RenderText_Solid(font, "Game Over! Press R to restart", white);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     
@@ -189,6 +189,3 @@ void Game::Clean() {
     SDL_Quit();
 }
 
-SDL_Renderer* Game::GetRenderer() const {
-    return renderer;
-}
