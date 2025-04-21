@@ -1,6 +1,6 @@
 #pragma once
 #include "common.hpp"
-#include "Map.hpp"  // Added this include
+#include "Map.hpp"
 #include <vector>
 
 class Player;  // Forward declaration
@@ -19,7 +19,7 @@ public:
     bool isActive;
     
 private:
-    void CalculatePath(const Vec2& target);
+    void CalculatePath(const Vec2& target, const Map& map);  // Added Map parameter
     void MoveAlongPath(float deltaTime);
     
     float speed;
