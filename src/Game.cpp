@@ -111,13 +111,18 @@ void Game::HandleEvents() {
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             isRunning = false;
+            return;
         }
 
-        if (currentState == PLAYING) {
-            player->HandleEvent(event);  // Posredujemo dogodke igralcu
-        }
-        else if (currentState == MENU) {
+        if (currentState == MENU) {
             menu->HandleEvents(event);
+            if (menu->StartGame()) {
+                std::cout << "Switching to PLAYING state" << std::endl; // Debug
+                currentState = PLAYING;
+            }
+        }
+        else if (currentState == PLAYING) {
+            player->HandleEvent(event);
         }
     }
 }
@@ -133,7 +138,7 @@ void Game::Update() {
 void Game::Render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-
+    std::cout << "Current state: " << currentState << std::endl;
     switch (currentState) {
         case MENU:
             menu->Render(renderer);

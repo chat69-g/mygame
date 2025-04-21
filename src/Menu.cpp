@@ -22,11 +22,15 @@ Menu::~Menu() {
 }
 
 void Menu::HandleEvents(SDL_Event& event) {
-    if (event.type == SDL_KEYDOWN) {
-        if (event.key.keysym.sym == SDLK_RETURN) {
-            startGame = true;
-        }
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
+        startGame = true;
+        std::cout << "ENTER pressed - startGame set to true" << std::endl; // Debug
     }
+}
+
+bool Menu::StartGame() const {
+    std::cout << "Checking startGame: " << startGame << std::endl; // Debug
+    return startGame;
 }
 
 void Menu::Render(SDL_Renderer* renderer) {
