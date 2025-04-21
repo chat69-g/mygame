@@ -36,8 +36,9 @@ private:
     bool isRunning;
     GameState currentState;
     
+    TextureManager& textureManager;
     Player* player;
     Map* map;
     Menu* menu;
-    TextureManager& textureManager;
+    
 };
