@@ -1,7 +1,7 @@
 #include "Map.hpp"
 #include "Game.hpp"
 #include <SDL2/SDL_image.h>
-#include <fstream>
+#include <iostream>
 #include <random>
 
 using namespace std;
@@ -13,7 +13,7 @@ Map::Map() : width(20), height(15) {
     // Load textures
     for(int i = 0; i < 5; i++) {
         string path = "assets/tile" + to_string(i) + ".png";
-        tileTextures[i] = IMG_LoadTexture(Game::Instance().renderer, path.c_str());
+        tileTextures[i] = IMG_LoadTexture(Game::Instance().GetRenderer(), path.c_str());
         if(!tileTextures[i]) {
             cerr << "Failed to load tile texture " << i << ": " << IMG_GetError() << endl;
         }
@@ -46,7 +46,6 @@ void Map::Generate(int level) {
     }
     
     // Ensure path from start to exit
-    // Simplified path generation - would use proper algorithm in real implementation
     for(int y = 1; y < height-1; y++) {
         tiles[y][1].type = 0;
         tiles[y][1].walkable = true;
