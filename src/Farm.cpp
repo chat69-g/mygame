@@ -19,3 +19,12 @@ void Farm::Update(float deltaTime, const Vec2& playerPos) {
         isDiscovered = true;
     }
 }
+
+void Farm::Render(SDL_Renderer* renderer) {
+    if(isDiscovered) {
+        // Uporabite parameter renderer namesto Game::Instance().GetRenderer()
+        SDL_Rect farmRect = {position.x, position.y, 64, 64};
+        SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255); // Rjava barva
+        SDL_RenderFillRect(renderer, &farmRect);
+    }
+}

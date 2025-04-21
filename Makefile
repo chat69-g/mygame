@@ -1,26 +1,21 @@
-CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Iinc -IC:/SDL2/include -Iassets
-LDFLAGS = -LC:/SDL2/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lmingw32 -mwindows
+CXXFLAGS = -std=c++17 -Wall -Wextra -Iinc -IC:/SDL2/include
+LDFLAGS = -LC:/SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -mwindows
 
-SRCDIR = src
-OBJDIR = obj
-BINDIR = bin
+SRC = $(wildcard src/*.cpp)
+OBJ = $(patsubst src/%.cpp,obj/%.o,$(SRC))
+EXE = bin/mygame.exe
 
-SOURCES = $(wildcard $(SRCDIR)/*.cpp)
-OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SOURCES))
-EXECUTABLE = $(BINDIR)/mygame.exe
+all: $(EXE)
 
-all: $(EXECUTABLE)
+$(EXE): $(OBJ)
+	@mkdir -p bin
+	$(CXX) $(OBJ) $(LDFLAGS) -o $@
 
-$(EXECUTABLE): $(OBJECTS)
-	@mkdir -p $(BINDIR)
-	$(CXX) $(OBJECTS) -o $@ $(LDFLAGS)
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	@mkdir -p $(OBJDIR)
+obj/%.o: src/%.cpp
+	@mkdir -p obj
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJDIR) $(BINDIR)
+	rm -rf obj bin
 
 .PHONY: all clean

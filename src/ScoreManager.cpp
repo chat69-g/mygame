@@ -1,7 +1,7 @@
 // ScoreManager.cpp
 #include "ScoreManager.hpp"
 #include <fstream>
-#include <algorithm>
+#include <sstream>
 
 void ScoreManager::AddScore(const ScoreEntry& entry) {
     scores.push_back(entry);
@@ -14,16 +14,8 @@ void ScoreManager::AddScore(const ScoreEntry& entry) {
 }
 
 void ScoreManager::SaveToFile(const std::string& filename) {
-    json j;
-    for(const auto& entry : scores) {
-        j["scores"].push_back({
-            {"name", entry.playerName},
-            {"score", entry.score},
-            {"time", entry.time},
-            {"level", entry.level}
-        });
-    }
-    
     std::ofstream file(filename);
-    file << j.dump(4);
+    for(const auto& entry : scores) {
+        file << entry.playerName << "," << entry.score << "\n";
+    }
 }

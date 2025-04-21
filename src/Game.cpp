@@ -91,61 +91,33 @@ void Game::Run() {
     Uint32 lastTime = SDL_GetTicks();
     float deltaTime = 0.0f;
     
-    // Inicializacija igre
-    LoadLevel(1); // Naloži prvo stopnjo
-    scoreManager.LoadFromFile("scores.json");
-    
+    // Inicializacija
+    if(!Init("Animal Rescue", 800, 600)) {
+        std::cerr << "Failed to initialize game!" << std::endl;
+        return;
+    }
+
     while (isRunning) {
-        // Izračunaj deltaTime
+        // 1. Izračun deltaTime
         Uint32 currentTime = SDL_GetTicks();
         deltaTime = (currentTime - lastTime) / 1000.0f;
         lastTime = currentTime;
-        
-        // 1. Obdelaj vnose
+
+        // 2. Obdelaj vnose
         HandleEvents();
-        
-        // 2. Posodobi stanje igre
-        if (currentState == GameState::PLAYING) {
-            // Posodobi igralca
-            player.Update(deltaTime);
-            
-            // Posodobi nasprotnike
-            for (auto& enemy : enemies) {
-                enemy.Update(deltaTime, player.GetPosition());
-            }
-            
-            // Posodobi farme
-            for (auto& farm : farms) {
-                farm->Update(deltaTime, player.GetPosition());
-            }
-            
-            // Posodobi časovno omejitev
-            currentLevelTime += deltaTime;
-            if (currentLevelTime >= levelTimeLimit) {
-                player.TakeDamage(1); // Kazen za prekoračitev časa
-                currentLevelTime = 0.0f;
-            }
-            
-            // Shrani stanje za replay
-            SaveReplayFrame();
-            
-            // Preveri konec stopnje
-            CheckLevelCompletion();
-        }
-        
-        // 3. Izriši prikaz
+
+        // 3. Posodobi stanje
+        Update(deltaTime);
+
+        // 4. Izriši prikaz
         Render();
-        
-        // 4. Omeji FPS
+
+        // 5. Omeji FPS
         Uint32 frameTime = SDL_GetTicks() - currentTime;
-        if (frameTime < 16) { // ~60 FPS
-            SDL_Delay(16 - frameTime);
-        }
+        if(frameTime < 16) SDL_Delay(16 - frameTime);
     }
-    
-    // Shrani rezultate ob koncu
-    scoreManager.SaveToFile("scores.json");
-    replaySystem.SaveToFile("replay.txt");
+
+    Clean();
 }
 
 void Game::SaveReplayFrame() {

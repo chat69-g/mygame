@@ -1,7 +1,11 @@
 #pragma once
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include "TextureManager.hpp"
+#include <vector>
+#include <memory>
+#include <string>
+#include "Player.hpp"
+#include "Enemy.hpp"
+#include "Farm.hpp"
+#include "ScoreManager.hpp"
 
 class Player;
 class Map;
@@ -32,7 +36,6 @@ private:
 
     static Game* sInstance;
     SDL_Window* window;
-    SDL_Renderer* renderer;
     bool isRunning;
     GameState currentState;
     
