@@ -17,8 +17,8 @@ Game::Game() :
     window(nullptr),
     renderer(nullptr),
     isRunning(false),
-    currentState(MENU),
     player(nullptr),
+    currentState(MENU),
     map(nullptr),
     menu(nullptr),
     textureManager(TextureManager::getInstance()) {
@@ -32,40 +32,41 @@ Game& Game::Instance() {
     return *sInstance;
 }
 
+Game& Game::Instance() {
+    if (!sInstance) {
+        sInstance = new Game();
+    }
+    return *sInstance;
+}
+
 bool Game::Init(const char* title, int width, int height) {
-    // Inicializacija SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    // Ustvarjanje okna
     window = SDL_CreateWindow(title, 
-                             SDL_WINDOWPOS_CENTERED, 
-                             SDL_WINDOWPOS_CENTERED, 
-                             width, 
-                             height, 
-                             SDL_WINDOW_SHOWN);
+                            SDL_WINDOWPOS_CENTERED, 
+                            SDL_WINDOWPOS_CENTERED, 
+                            width, 
+                            height, 
+                            SDL_WINDOW_SHOWN);
     if (!window) {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    // Ustvarjanje rendererja
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    // Inicializacija SDL_image
-    int imgFlags = IMG_INIT_PNG;
-    if (!(IMG_Init(imgFlags) & imgFlags)) {
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
         std::cerr << "SDL_image could not initialize! Error: " << IMG_GetError() << std::endl;
         return false;
     }
 
-    // Inicializacija SDL_ttf
     if (TTF_Init() == -1) {
         std::cerr << "SDL_ttf could not initialize! Error: " << TTF_GetError() << std::endl;
         return false;
@@ -79,14 +80,13 @@ bool Game::Init(const char* title, int width, int height) {
         !textureManager.load("tile2", "tile2.png", renderer) ||
         !textureManager.load("tile3", "tile3.png", renderer) ||
         !textureManager.load("tile4", "tile4.png", renderer) ||
-        !textureManager.load("bull", "bull.png", renderer) ||
+        !textureManager.load("animal1", "animal1.png", renderer) ||
+        !textureManager.load("animal3", "animal3.png", renderer) ||
         !textureManager.load("farm", "farm.png", renderer) ||
         !textureManager.load("menu_bg", "menu_bg.png", renderer)) {
-            std::cerr << "Failed to load required textures!" << std::endl;
-            return false;
+        return false;
     }
 
-    // Inicializacija igralnih objektov
     map = new Map();
     player = new Player();
     menu = new Menu();
@@ -100,11 +100,11 @@ void Game::Run() {
     
     while (IsRunning()) {
         Uint32 currentTime = SDL_GetTicks();
-        float deltaTime = (currentTime - lastTime) / 1000.0f;
+        Uint32 deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
         HandleEvents();
-        Update(deltaTime);  // Predpostavka, da Update sprejema deltaTime
+        Update();  // Popravljeno - brez deltaTime parametra
         Render();
 
         // Ohranjanje 60 FPS
@@ -214,4 +214,7 @@ void Game::Clean() {
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
+}
+bool Game::IsRunning() const {
+    return isRunning;
 }
