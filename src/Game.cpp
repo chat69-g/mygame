@@ -24,14 +24,6 @@ Game::Game() :
     textureManager(TextureManager::getInstance()) {
 }
 
-
-Game& Game::Instance() {
-    if (!sInstance) {
-        sInstance = new Game();
-    }
-    return *sInstance;
-}
-
 Game& Game::Instance() {
     if (!sInstance) {
         sInstance = new Game();
@@ -100,11 +92,10 @@ void Game::Run() {
     
     while (IsRunning()) {
         Uint32 currentTime = SDL_GetTicks();
-        Uint32 deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
         HandleEvents();
-        Update();  // Popravljeno - brez deltaTime parametra
+        Update();
         Render();
 
         // Ohranjanje 60 FPS

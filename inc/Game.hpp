@@ -21,13 +21,12 @@ public:
 
 private:
     Game();
-    ~Game()= default;
+    ~Game();
 
     void HandleEvents();
     void Update();
     void Render();
     void RenderGameOver();
-    void Reset();
 
     static Game* sInstance;
     SDL_Window* window;
@@ -35,8 +34,6 @@ private:
     bool isRunning;
     GameState currentState;
     
-    
-
     Player* player;
     Map* map;
     Menu* menu;
