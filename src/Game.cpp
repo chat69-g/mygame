@@ -13,15 +13,15 @@
 
 Game* Game::sInstance = nullptr;
 
-Game::Game() : 
+Game::Game() :
     window(nullptr),
     renderer(nullptr),
     isRunning(false),
-    player(nullptr),
-    currentState(MENU),
+    currentState(MENU),  // Keep this first
+    textureManager(TextureManager::getInstance()),
+    player(nullptr),     // Then this
     map(nullptr),
-    menu(nullptr),
-    textureManager(TextureManager::getInstance()) {
+    menu(nullptr) {
 }
 
 Game& Game::Instance() {
