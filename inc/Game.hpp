@@ -21,7 +21,7 @@ public:
 
 private:
     Game();
-    ~Game();
+    ~Game()= default;;
 
     void HandleEvents();
     void Update();
@@ -35,7 +35,7 @@ private:
     bool isRunning;
     GameState currentState;
     
-    SDL_Renderer* renderer;
+    
 
     Player* player;
     Map* map;

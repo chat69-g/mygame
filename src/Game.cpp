@@ -47,11 +47,11 @@ bool Game::Init(const char* title, int width, int height) {
         return false;
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!renderer) {
-        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+if (!renderer) {
+    std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
+    return;
+}
 
     if (TTF_Init() == -1) {
         std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
