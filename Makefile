@@ -1,7 +1,6 @@
 # Vaš obstoječi Makefile z minimalnimi spremembami
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Iinc -IC:/SDL2/include
-CXXFLAGS += -Iinc -IC:/SDL2/include -Iassets
+CXXFLAGS = -std=c++17 -Wall -Wextra -Iinc -IC:/SDL2/include -Iassets
 LDFLAGS = -LC:/SDL2/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -mwindows
 SRCDIR = src
 OBJDIR = obj

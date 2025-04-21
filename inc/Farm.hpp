@@ -4,11 +4,16 @@
 #include "Animal.hpp"
 
 class Farm {
-    public:
-        ~Farm();
-        int CollectAnimals();
-        void AddAnimal(Animal* animal);
-        
-    private:
-        std::vector<Animal*> animals;  // Vektor kazalcev po vzoru GameRPA-13
-    };
+public:
+    Farm();
+    ~Farm();
+    
+    void Update();
+    void Render(SDL_Renderer* renderer);
+    void AddAnimal(Animal* animal);
+    int CollectAnimals();
+
+private:
+    std::vector<Animal*> animals;
+    SDL_Texture* texture;
+};
