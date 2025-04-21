@@ -33,27 +33,66 @@ Game& Game::Instance() {
 }
 
 bool Game::Init(const char* title, int width, int height) {
-    if(SDL_Init(SDL_INIT_VIDEO) {
-        std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
-        return false;  // Dodajte return false pri napaki
-    }
-
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, 
-                            SDL_WINDOWPOS_CENTERED, width, height, 0);
-    if(!window) {
-        std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
+    // Inicializacija SDL
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(!renderer) {
-        std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
+    // Ustvarjanje okna
+    window = SDL_CreateWindow(title, 
+                             SDL_WINDOWPOS_CENTERED, 
+                             SDL_WINDOWPOS_CENTERED, 
+                             width, 
+                             height, 
+                             SDL_WINDOW_SHOWN);
+    if (!window) {
+        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    // Vse inicializacije uspešne
+    // Ustvarjanje rendererja
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer) {
+        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    // Inicializacija SDL_image
+    int imgFlags = IMG_INIT_PNG;
+    if (!(IMG_Init(imgFlags) & imgFlags)) {
+        std::cerr << "SDL_image could not initialize! Error: " << IMG_GetError() << std::endl;
+        return false;
+    }
+
+    // Inicializacija SDL_ttf
+    if (TTF_Init() == -1) {
+        std::cerr << "SDL_ttf could not initialize! Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
+
+    // Nalaganje tekstur
+    if (!textureManager.load("player", "images/player.png", renderer) ||
+        !textureManager.load("enemy", "images/enemy.png", renderer) ||
+        !textureManager.load("tile0", "images/tile0.png", renderer) ||
+        !textureManager.load("tile1", "images/tile1.png", renderer) ||
+        !textureManager.load("tile2", "images/tile2.png", renderer) ||
+        !textureManager.load("tile3", "images/tile3.png", renderer) ||
+        !textureManager.load("tile4", "images/tile4.png", renderer) ||
+        !textureManager.load("animal1", "images/animal1.png", renderer) ||
+        !textureManager.load("animal3", "images/animal3.png", renderer) ||
+        !textureManager.load("farm", "images/farm.png", renderer) ||
+        !textureManager.load("menu_bg", "images/menu_bg.png", renderer)) {
+        return false;
+    }
+
+    // Inicializacija igralnih objektov
+    map = new Map();
+    player = new Player();
+    menu = new Menu();
+
     isRunning = true;
-    return true;  // Dodajte return true na koncu
+    return true;
 }
 
 void Game::Run() {
@@ -159,9 +198,9 @@ void Game::Clean() {
     delete map;
 
     textureManager.clean();
-    TTF_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    TTF_Quit();
+    IMG_Quit();
     SDL_Quit();
 }
-
