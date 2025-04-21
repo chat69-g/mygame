@@ -6,15 +6,9 @@ Farm::Farm() {
     texture = TextureManager::getInstance().get("farm");
 }
 
-Farm::~Farm() {
-    for (auto animal : animals) {
-        delete animal;
-    }
-}
-
 void Farm::Update() {
     for (auto animal : animals) {
-        animal->Update();
+        animal->Update();  // Sedaj lahko kličemo brez parametra
     }
 }
 
@@ -26,27 +20,21 @@ void Farm::Render(SDL_Renderer* renderer) {
         animal->Render(renderer);
     }
 }
-
 void Farm::AddAnimal(Animal* animal) {
     animals.push_back(animal);
 }
 
 int Farm::CollectAnimals() {
     int collected = 0;
-    
-    // Uporaba std::remove_if z algoritmom
-    animals.erase(
-        std::remove_if(animals.begin(), animals.end(),
-            [&collected](Animal* animal) {
-                if (animal->IsRescued()) {
-                    collected += animal->GetScoreValue();
-                    delete animal;
-                    return true;
-                }
-                return false;
-            }),
-        animals.end());
-    
+    animals.erase(std::remove_if(animals.begin(), animals.end(),
+        [&collected](Animal* a) {
+            if (a->CanBeCollected()) {  // Uporabimo CanBeCollected namesto IsRescued
+                collected += a->GetValue();  // Popravljeno iz GetScoreValue
+                delete a;
+                return true;
+            }
+            return false;
+        }), animals.end());
     return collected;
 }
 

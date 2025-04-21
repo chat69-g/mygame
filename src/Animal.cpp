@@ -15,6 +15,7 @@ Animal::~Animal() {
 }
 
 void Animal::Update(float deltaTime) {
+    (void)deltaTime;  // Izognemo se opozorilu o neuporabljenem parametru
     MoveRandomly();
 }
 
@@ -45,4 +46,8 @@ bool Animal::CanBeCollected() const {
 
 int Animal::GetValue() const {
     return 50;
+}
+
+bool Animal::IsRescued() const {
+    return isRescued;
 }

@@ -6,10 +6,11 @@ public:
     Animal(int x, int y);
     virtual ~Animal();
     
-    void Update(float deltaTime);
+    void Update(float deltaTime = 0.0f);  // Dodan privzeti parameter
     void Render(SDL_Renderer* renderer);
     bool CanBeCollected() const;
     int GetValue() const;
+    bool IsRescued() const;  // Dodana javna metoda za dostop
 
 protected:
     int x, y;
