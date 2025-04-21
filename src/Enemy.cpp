@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <cmath>
+#include <memory>   // For smart pointers
 #include <queue>
 
 using namespace std;

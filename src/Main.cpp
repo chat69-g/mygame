@@ -1,26 +1,34 @@
 #include "Game.hpp"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <iostream>
+#include <memory>   // For smart pointers
+#include <cmath>    // For math functions
 
 using namespace std;
 
 int main(int argc, char* argv[]) {
+    (void)argc;  // Mark unused parameters explicitly
+    (void)argv;
+
     // Initialize SDL
-    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
-        cerr << "SDL could not initialize! Error: " << SDL_GetError() << endl;
+    if(SDL_Init(SDL_INIT_VIDEO) != 0) {
+        cerr << "SDL initialization failed: " << SDL_GetError() << endl;
         return 1;
     }
 
     // Initialize SDL_image
-    if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
-        cerr << "SDL_image could not initialize! Error: " << IMG_GetError() << endl;
+    int imgFlags = IMG_INIT_PNG;
+    if((IMG_Init(imgFlags) & imgFlags) != imgFlags) {
+        cerr << "SDL_image initialization failed: " << IMG_GetError() << endl;
         SDL_Quit();
         return 1;
     }
 
     // Initialize SDL_ttf
     if(TTF_Init() == -1) {
-        cerr << "SDL_ttf could not initialize! Error: " << TTF_GetError() << endl;
+        cerr << "SDL_ttf initialization failed: " << TTF_GetError() << endl;
         IMG_Quit();
         SDL_Quit();
         return 1;
@@ -49,14 +57,15 @@ int main(int argc, char* argv[]) {
         
         game.Clean();
     } catch(const exception& e) {
-        cerr << "Game crashed with exception: " << e.what() << endl;
+        cerr << "Exception: " << e.what() << endl;
+        TTF_Quit();
+        IMG_Quit();
+        SDL_Quit();
         return 1;
     }
 
-    // Clean up SDL subsystems
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
-    
     return 0;
 }

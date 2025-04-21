@@ -2,6 +2,8 @@
 #include "Game.hpp"
 #include <SDL2/SDL_image.h>
 #include <iostream>  // Add this
+#include <memory>   // For smart pointers
+#include <cmath>    // For math functions
 
 using namespace std;
 

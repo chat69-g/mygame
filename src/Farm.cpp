@@ -3,6 +3,8 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <random>
+#include <memory>   // For smart pointers
+#include <cmath>    // For math functions
 
 using namespace std;
 

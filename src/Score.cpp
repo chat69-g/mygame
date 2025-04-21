@@ -1,5 +1,8 @@
 #include "Score.hpp"
+#include <iostream> // For cerr/cout
 #include <sstream>
+#include <memory>   // For smart pointers
+#include <cmath>    // For math functions
 #include <algorithm>
 
 ScoreManager::ScoreManager() {

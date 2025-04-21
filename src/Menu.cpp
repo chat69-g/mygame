@@ -4,6 +4,8 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 #include <algorithm>
+#include <memory>   // For smart pointers
+#include <cmath>    // For math functions
 
 using namespace std;
 
