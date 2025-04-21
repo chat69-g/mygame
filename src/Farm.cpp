@@ -2,6 +2,7 @@
 #include "TextureManager.hpp"
 #include <algorithm> 
 #include <SDL2/SDL.h>
+#include <memory>
 
 Farm::Farm() {
     texture = TextureManager::getInstance().get("farm");
