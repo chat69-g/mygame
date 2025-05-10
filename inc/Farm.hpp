@@ -16,4 +16,6 @@ public:
     void render() const;
     bool HasMainBull() const;
     std::vector<Animal> GetAnimals() const;
+    int getX() const { return x; }
+    int getY() const { return y; }
 };

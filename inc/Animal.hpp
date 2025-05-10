@@ -12,4 +12,6 @@ public:
     bool isRescued() const;
     void checkRescue(int playerX, int playerY);
     void render() const;
+    int getX() const { return x; }
+    int getY() const { return y; }
 };
