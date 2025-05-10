@@ -1,29 +1,17 @@
-# Makefile za mygame projekt - popravljena različica
+# Makefile za SDL2 projekt na Windowsu
 
-# Prevajalnik
 CC = g++
-
-# Opcije za prevajanje
 CFLAGS = -Wall -Wextra -std=c++17 -Iinc -Iinclude -Isrc
-LDFLAGS = -Llib -lsfml-graphics -lsfml-window -lsfml-system
+LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -mwindows  # Dodajte -mwindows za Windows aplikacijo
 
-# Imeniki
 SRC_DIR = src
-INC_DIRS = inc include src
 OBJ_DIR = obj
 BIN_DIR = .
 
-# Vse izvorne datoteke
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
-
-# Dodaj vse imenike z headerji kot -I zastavice
-INC_FLAGS = $(addprefix -I,$(INC_DIRS))
-
-# Izhodna datoteka
 TARGET = $(BIN_DIR)/game.exe
 
-# Privzeta pravila
 all: $(TARGET)
 
 $(TARGET): $(OBJ_FILES)
@@ -31,7 +19,7 @@ $(TARGET): $(OBJ_FILES)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(INC_FLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 run: $(TARGET)
 	./$(TARGET)
