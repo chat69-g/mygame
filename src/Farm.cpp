@@ -1,4 +1,5 @@
 #include "Farm.hpp"
+#include <vector> // Dodano za std::vector
 
 Farm::Farm(int maxX, int maxY) : visible(false) {
     x = rand() % maxX;

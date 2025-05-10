@@ -1,7 +1,8 @@
 #pragma once
 
-#include <iostream>
 #include <cmath>
+#include <vector> // Dodano za std::vector
+#include "Animal.hpp"
 
 class Farm {
 private:
