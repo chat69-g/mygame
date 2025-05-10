@@ -13,4 +13,6 @@ public:
     bool isVisible() const;
     void checkProximity(int playerX, int playerY);
     void render() const;
+    bool HasMainBull() const;
+    std::vector<Animal> GetAnimals() const;
 };

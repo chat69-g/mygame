@@ -13,7 +13,7 @@
 
 Game* Game::sInstance = nullptr;
 
-Game::Game() :
+Game::Game() :textureManager(TextureManager::getInstance()), map(nullptr), menu(nullptr), player(nullptr) {
     window(nullptr),
     renderer(nullptr),
     isRunning(false),

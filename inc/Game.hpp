@@ -9,7 +9,7 @@
 
 class Game {
     public:
-        static Game& Instance();
+        static Game* sInstance;
         
         bool Init(const char* title, int width, int height);
         void Run();
@@ -22,6 +22,10 @@ class Game {
         Player& GetPlayer() { return player; }
         const std::vector<Enemy>& GetEnemies() const { return enemies; }
         
+        void RenderUI();
+        void RenderPauseMenu();
+        void RenderGameOver();
+        void RenderLevelComplete();
     private:
         Game();
         void HandleEvents();
@@ -38,4 +42,8 @@ class Game {
         std::vector<Enemy> enemies;
         std::vector<std::unique_ptr<Farm>> farms;
         ScoreManager scoreManager;
+        TextureManager textureManager;
+        Map* map;
+        Menu* menu;
+        Player* player;
     };

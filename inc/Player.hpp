@@ -9,6 +9,8 @@ private:
 
 public:
     Player(int maxX, int maxY);
+    Player() : x(0), y(0), lives(3) {}
+    void TakeDamage(int damage);
     void move(char direction);
     void loseLife();
     bool isAlive() const;

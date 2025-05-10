@@ -31,3 +31,9 @@ void ScoreManager::displayTopScores() const {
         std::cout << score << std::endl;
     }
 }
+void ScoreManager::SaveToFile(const std::string& filename) {
+    std::ofstream file(filename);
+    for (const auto& score : scores) {
+        file << score << std::endl;
+    }
+}

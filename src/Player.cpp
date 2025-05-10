@@ -25,3 +25,8 @@ bool Player::isAlive() const {
 void Player::render() const {
     std::cout << "Player is at (" << x << ", " << y << ") with " << lives << " lives left." << std::endl;
 }
+
+void Player::TakeDamage(int damage) {
+    lives -= damage;
+    if (lives < 0) lives = 0;
+}

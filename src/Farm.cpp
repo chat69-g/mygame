@@ -20,3 +20,11 @@ void Farm::render() const {
         std::cout << "Farm is at (" << x << ", " << y << ")" << std::endl;
     }
 }
+
+bool Farm::HasMainBull() const {
+    return true; // Ali druga logika
+}
+
+std::vector<Animal> Farm::GetAnimals() const {
+    return animals; // Predpostavimo, da imate `std::vector<Animal> animals`
+}
