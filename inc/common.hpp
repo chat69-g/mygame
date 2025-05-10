@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-typedef SDL_FPoint Vec2;
+
 typedef SDL_Color Color;
 
 enum class GameState {

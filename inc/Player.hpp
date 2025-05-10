@@ -1,22 +1,16 @@
 #pragma once
-#include <SDL2/SDL.h>
+
+#include <iostream>
 
 class Player {
-public:
-    Player();
-    ~Player();
-    
-    void HandleEvent(SDL_Event& event);
-    void Update();
-    void Render(SDL_Renderer* renderer);
-    
-    bool IsDead() const;
-    void TakeDamage(int amount);
-
 private:
     int x, y;
-    int width, height;
-    int health;
-    int speed;
-    SDL_Texture* texture;
+    int lives;
+
+public:
+    Player(int maxX, int maxY);
+    void move(char direction);
+    void loseLife();
+    bool isAlive() const;
+    void render() const;
 };

@@ -1,21 +1,16 @@
-// Farm.hpp
 #pragma once
-#include "common.hpp"
-#include "Animal.hpp"
-#include <vector>
+
+#include <iostream>
+#include <cmath>
 
 class Farm {
-public:
-    Farm(Vec2 position);
-    void Update(float deltaTime, const Vec2& playerPos);
-    void Render(SDL_Renderer* renderer);
-    bool IsDiscovered() const;
-    bool HasMainBull() const;
-    std::vector<Animal*>& GetAnimals();
-
 private:
-    Vec2 position;
-    bool isDiscovered = false;
-    std::vector<Animal*> animals;
-    float discoveryRadius = 200.0f;
+    int x, y; // Lokacija farme
+    bool visible; // Ali je farma vidna
+
+public:
+    Farm(int maxX, int maxY);
+    bool isVisible() const;
+    void checkProximity(int playerX, int playerY);
+    void render() const;
 };

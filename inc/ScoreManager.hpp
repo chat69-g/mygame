@@ -1,21 +1,17 @@
-// ScoreManager.hpp
 #pragma once
+
 #include <vector>
 #include <string>
+#include <fstream>
 #include <algorithm>
 
-struct ScoreEntry {
-    std::string playerName;
-    int score;
-};
-
 class ScoreManager {
-public:
-    void AddScore(const ScoreEntry& entry);
-    const std::vector<ScoreEntry>& GetTopScores() const;
-    void SaveToFile(const std::string& filename);
-    void LoadFromFile(const std::string& filename);
-
 private:
-    std::vector<ScoreEntry> scores;
+    std::vector<int> scores;
+
+public:
+    void addScore(int score);
+    void saveScores(const std::string& filename);
+    void loadScores(const std::string& filename);
+    void displayTopScores() const;
 };

@@ -1,25 +1,23 @@
 #include "Enemy.hpp"
-#include <cmath>
-#include "Game.hpp"
 
-Enemy::Enemy(Vec2 startPos) : position(startPos) {}
+Enemy::Enemy(int maxX, int maxY) : active(true) {
+    x = rand() % maxX;
+    y = rand() % maxY;
+}
 
-void Enemy::Update(float deltaTime, Vec2 playerPos) {
-    const Player& player = Game::Instance().GetPlayer();
-    Vec2 direction = {
-        playerPos.x - position.x,
-        playerPos.y - position.y
-    };
-    
-    float length = sqrt(direction.x * direction.x + direction.y * direction.y);
-    if (length > 0) {
-        direction.x /= length;
-        direction.y /= length;
+void Enemy::update(int playerX, int playerY) {
+    if (isNearPlayer(playerX, playerY)) {
+        if (playerX > x) x++;
+        if (playerX < x) x--;
+        if (playerY > y) y++;
+        if (playerY < y) y--;
     }
-    
-    velocity.x = direction.x * speed;
-    velocity.y = direction.y * speed;
-    
-    position.x += velocity.x * deltaTime;
-    position.y += velocity.y * deltaTime;
+}
+
+bool Enemy::isNearPlayer(int playerX, int playerY) const {
+    return std::abs(playerX - x) < 10 && std::abs(playerY - y) < 10;
+}
+
+void Enemy::render() const {
+    std::cout << "Enemy is at (" << x << ", " << y << ")" << std::endl;
 }
