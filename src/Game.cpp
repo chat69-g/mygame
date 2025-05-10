@@ -10,7 +10,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 
-Game::Game() : currentState(GameState::MENU), inFarm(false), timer(0) {} // Inicializacija timerja
+Game::Game() : currentState(GameState::MENU), timer(0), timerStarted(false), inFarm(false) {} // Inicializacija timerja
 
 void Game::run() {
     while (true) {
@@ -55,7 +55,6 @@ void Game::handlePlaying() {
         }
     }
 }
-
 void Game::handleGameOver(bool won) {
     if (won) {
         std::cout << "Congratulations, " << playerName << "! You won!\n";

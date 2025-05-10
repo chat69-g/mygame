@@ -8,19 +8,16 @@
 #include "Timer.hpp"
 
 class Game {
-private:
-    GameState currentState;
-    Menu menu;
-    ScoreManager scoreManager;
-    ReplayManager replayManager;
-    Timer timer;
-    std::string playerName;
-    bool inFarm;
-
-public:
-    Game();
-    void run();
-    void handleMenu();
-    void handlePlaying();
-    void handleGameOver(bool won);
-};
+    private:
+        GameState currentState;
+        Timer timer;
+        bool timerStarted; // Dodano za sledenje začetka timerja
+        bool inFarm;
+    
+    public:
+        Game();
+        void run();
+        void handleMenu();
+        void handlePlaying();
+        void handleGameOver(bool won);
+    };
