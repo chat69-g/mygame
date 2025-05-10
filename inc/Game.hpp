@@ -6,22 +6,30 @@
 #include "ScoreManager.hpp"
 #include "ReplayManager.hpp"
 #include "Timer.hpp"
+#include "Player.hpp"
+#include "Farm.hpp"
+#include "Enemy.hpp"
+#include "Animal.hpp"
 
 class Game {
-    private:
-        GameState currentState;
-        Timer timer;
-        bool timerStarted;
-        bool inFarm;
-    
-        Menu menu;                     // Dodano za upravljanje menija
-        std::string playerName;        // Dodano za shranjevanje imena igralca
-        ReplayManager replayManager;   // Dodano za upravljanje replay sistema
-    
-    public:
-        Game();
-        void run();
-        void handleMenu();
-        void handlePlaying();
-        void handleGameOver(bool won);
-    };
+private:
+    GameState currentState;       // Trenutno stanje igre
+    Menu menu;                    // Upravljanje menija
+    Timer timer;                  // Upravljanje časa
+    ReplayManager replayManager;  // Upravljanje replay sistema
+    ScoreManager scoreManager;    // Upravljanje rezultatov
+    Player player;                // Igralec
+    Farm farm;                    // Farma
+    Animal animal;                // Žival
+    std::vector<Enemy> enemies;   // Nasprotniki
+    bool timerStarted;            // Ali je timer že začet
+    bool inFarm;                  // Ali je igralec v farmi
+    std::string playerName;       // Ime igralca
+
+public:
+    Game(SDL_Renderer* renderer);
+    void run();
+    void handleMenu();
+    void handlePlaying();
+    void handleGameOver(bool won);
+};

@@ -6,13 +6,16 @@
 
 class Menu {
     private:
+        SDL_Renderer* renderer;
+        TTF_Font* font;
         std::string playerName;
         bool nameEntered;
     
     public:
-        Menu();
+        Menu(SDL_Renderer* renderer);
+        ~Menu();
         void displayMenu();
-        void handleInput();
+        void handleInput(SDL_Event& event);
         std::string getPlayerName() const;
         bool isNameEntered() const;
     };
