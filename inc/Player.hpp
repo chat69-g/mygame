@@ -6,7 +6,7 @@ class Player {
 private:
     int x, y;
     int lives;
-
+   
 public:
     Player(int maxX, int maxY);
     Player() : x(0), y(0), lives(3) {}
@@ -15,4 +15,6 @@ public:
     void loseLife();
     bool isAlive() const;
     void render() const;
+    int getX() const { return x; }
+    int getY() const { return y; }
 };

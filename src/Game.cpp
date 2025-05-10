@@ -4,7 +4,7 @@
 #include "Enemy.hpp"
 #include "Animal.hpp"
 #include "Farm.hpp"
-#include "Menu.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
@@ -12,7 +12,7 @@
 
 Game* Game::sInstance = nullptr;
 
-Game::Game() : player(nullptr), window(nullptr), renderer(nullptr), isRunning(false), currentState(GameState::MENU) {
+Game::Game() : player(nullptr), window(nullptr), renderer(nullptr), isRunning(false) {
     player = new Player(10, 10); // Inicializacija igralca
 }
 
@@ -41,23 +41,13 @@ bool Game::Init(const char* title, int width, int height) {
 
 void Game::Run() {
     while (isRunning) {
-        HandleEvents();
         Update(0.016f); // 60 FPS
         Render();
     }
     Clean();
 }
 
-void Game::HandleEvents() {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            isRunning = false;
-        }
-    }
-}
-
-void Game::Update(float deltaTime) {
+void Game::Update(float /*deltaTime*/) {
     // Posodobitev logike igre
 }
 
