@@ -10,21 +10,26 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 
-Game::Game() : currentState(GameState::MENU), timer(0), timerStarted(false), inFarm(false) {} // Inicializacija timerja
+Game::Game() : currentState(GameState::MENU), timer(0), timerStarted(false), inFarm(false) {}
 
 void Game::run() {
     while (true) {
         switch (currentState) {
             case GameState::MENU:
-                handleMenu();
+                menu.displayMenu();
+                menu.handleInput();
+                if (menu.isNameEntered()) {
+                    currentState = GameState::PLAYING;
+                }
                 break;
+
             case GameState::PLAYING:
-                handlePlaying();
+                // Logika za igranje igre
                 break;
+
             case GameState::GAME_OVER:
-                handleGameOver(false); // Ali true, če je igralec zmagal
-                break;
-            default:
+                std::cout << "Game Over! Returning to menu...\n";
+                currentState = GameState::MENU;
                 break;
         }
     }
@@ -36,7 +41,7 @@ void Game::handleMenu() {
 
     if (menu.isNameEntered()) {
         playerName = menu.getPlayerName(); // Shranimo ime igralca
-        currentState = GameState::PLAYING;
+        currentState = GameState::PLAYING; // Preklopimo v stanje igranja
     }
 }
 
