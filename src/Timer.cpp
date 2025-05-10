@@ -1,4 +1,4 @@
-#include "Timer.h"
+#include "Timer.hpp"
 
 Timer::Timer(int seconds) : duration(seconds) {
     startTime = std::chrono::steady_clock::now();
