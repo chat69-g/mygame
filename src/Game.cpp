@@ -10,7 +10,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 
-Game* Game::sInstance = nullptr;
+Game* Game::sInstance = nullptr; // Definicija statičnega člana
 
 Game::Game() : player(nullptr), window(nullptr), renderer(nullptr), isRunning(false) {
     player = new Player(10, 10); // Inicializacija igralca

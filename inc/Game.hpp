@@ -9,6 +9,7 @@
 #include "TextureManager.hpp" 
 #include "Menu.hpp" 
 
+
 class Game {
     public:
         Game();
@@ -22,6 +23,7 @@ class Game {
         Player* GetPlayer();
     
     private:
+        static Game* sInstance; // Deklaracija statičnega člana
         Player* player;
         SDL_Window* window;
         SDL_Renderer* renderer;

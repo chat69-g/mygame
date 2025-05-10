@@ -1,4 +1,4 @@
-#include "ReplayManager.h"
+#include "ReplayManager.hpp
 #include <iostream>
 
 void ReplayManager::recordMove(const std::string& move) {
