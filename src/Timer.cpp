@@ -1,7 +1,7 @@
 #include "Timer.hpp"
 
 void Timer::start() {
-    startTime = std::chrono::steady_clock::now();
+    startTime = std::chrono::steady_clock::now(); // Nastavi začetni čas
 }
 
 int Timer::getElapsedTime() const {

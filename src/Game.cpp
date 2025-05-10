@@ -41,12 +41,18 @@ void Game::handleMenu() {
 }
 
 void Game::handlePlaying() {
-    // Logika za igranje igre
     if (!inFarm) {
-        // Premikanje igralca in odkrivanje farme
+        // Logika za premikanje igralca in odkrivanje farme
     } else {
-        timer.start();
-        // Logika za farmo (nasprotniki, bik, izhod)
+        if (!timerStarted) {
+            timer.start(); // Začni timer, ko igralec vstopi v farmo
+            timerStarted = true;
+        }
+
+        if (timer.isTimeUp()) {
+            std::cout << "Game is over! Time is up!" << std::endl;
+            currentState = GameState::GAME_OVER;
+        }
     }
 }
 
