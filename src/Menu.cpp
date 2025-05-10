@@ -9,7 +9,7 @@ Menu::Menu(SDL_Renderer* renderer) : renderer(renderer), nameEntered(false) {
     if (TTF_Init() == -1) {
         std::cerr << "Failed to initialize SDL_ttf: " << TTF_GetError() << std::endl;
     }
-    font = TTF_OpenFont("path/to/font.ttf", 24); // Zamenjajte z dejansko potjo do pisave
+    font = TTF_OpenFont("assets/fonts/font.ttf", 24); // Pot do pisave
     if (!font) {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
     }
