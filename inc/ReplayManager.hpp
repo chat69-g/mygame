@@ -1,8 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <string>
-#include <fstream>
+#include <vector>
 
 class ReplayManager {
 private:

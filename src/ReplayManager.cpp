@@ -8,6 +8,10 @@ void ReplayManager::recordMove(const std::string& move) {
 
 void ReplayManager::saveReplay(const std::string& filename) {
     std::ofstream file(filename);
+    if (!file) {
+        std::cerr << "Error: Could not open file for writing: " << filename << std::endl;
+        return;
+    }
     for (const auto& move : moves) {
         file << move << "\n";
     }

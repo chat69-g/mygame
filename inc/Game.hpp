@@ -11,8 +11,12 @@ class Game {
     private:
         GameState currentState;
         Timer timer;
-        bool timerStarted; // Dodano za sledenje začetka timerja
+        bool timerStarted;
         bool inFarm;
+    
+        Menu menu;                     // Dodano za upravljanje menija
+        std::string playerName;        // Dodano za shranjevanje imena igralca
+        ReplayManager replayManager;   // Dodano za upravljanje replay sistema
     
     public:
         Game();

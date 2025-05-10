@@ -35,7 +35,7 @@ void Game::handleMenu() {
     menu.handleInput();
 
     if (menu.isNameEntered()) {
-        playerName = menu.getPlayerName();
+        playerName = menu.getPlayerName(); // Shranimo ime igralca
         currentState = GameState::PLAYING;
     }
 }
@@ -61,6 +61,6 @@ void Game::handleGameOver(bool won) {
     } else {
         std::cout << "Game Over, " << playerName << ". Better luck next time!\n";
     }
-    replayManager.saveReplay("replay.txt");
+    replayManager.saveReplay("replay.txt"); // Shranimo replay igre
     currentState = GameState::MENU;
 }
