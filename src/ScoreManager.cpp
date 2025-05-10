@@ -1,4 +1,4 @@
-#include "ScoreManager.h"
+#include "ScoreManager.hpp"
 #include <iostream>
 
 void ScoreManager::addScore(int score) {
