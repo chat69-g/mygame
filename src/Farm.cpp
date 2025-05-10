@@ -27,5 +27,5 @@ bool Farm::HasMainBull() const {
 }
 
 std::vector<Animal> Farm::GetAnimals() const {
-    return animals; // Predpostavimo, da imate `std::vector<Animal> animals`
+    return {}; // Za zdaj vrne prazen seznam, dokler ne implementirate logike
 }

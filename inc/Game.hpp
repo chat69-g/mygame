@@ -38,7 +38,7 @@ class Game {
         bool isRunning = false;
         GameState currentState = GameState::MENU;
         
-        Player player;
+        
         std::vector<Enemy> enemies;
         std::vector<std::unique_ptr<Farm>> farms;
         ScoreManager scoreManager;
