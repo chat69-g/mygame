@@ -1,3 +1,5 @@
+
+#include <SDL.h>
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <vector>
@@ -40,7 +42,7 @@ void renderAnimal(SDL_Renderer* renderer, const Animal& animal) {
     }
 }
 
-int main(int /*argc*/, char* /*argv[]*/) {
+    int main(int /*argc*/, char** /*argv*/) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
         return -1;

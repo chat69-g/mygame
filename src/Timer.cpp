@@ -1,11 +1,14 @@
 #include "Timer.hpp"
 
-Timer::Timer(int seconds) : duration(seconds) {
+#include <chrono>
+
+std::chrono::time_point<std::chrono::steady_clock> startTime;
+
+void Timer::start() {
     startTime = std::chrono::steady_clock::now();
 }
 
-bool Timer::isTimeUp() const {
+int Timer::getElapsedTime() const {
     auto now = std::chrono::steady_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - startTime).count();
-    return elapsed >= duration;
+    return std::chrono::duration_cast<std::chrono::seconds>(now - startTime).count();
 }

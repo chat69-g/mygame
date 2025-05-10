@@ -10,66 +10,52 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 
-Game* Game::sInstance = nullptr; // Definicija statičnega člana
+Game::Game() : currentState(GameState::MENU), inFarm(false), timer(0) {} // Inicializacija timerja
 
-Game::Game() : player(nullptr), window(nullptr), renderer(nullptr), isRunning(false) {
-    player = new Player(10, 10); // Inicializacija igralca
-}
-
-Game& Game::Instance() {
-    if (!sInstance) {
-        sInstance = new Game();
+void Game::run() {
+    while (true) {
+        switch (currentState) {
+            case GameState::MENU:
+                handleMenu();
+                break;
+            case GameState::PLAYING:
+                handlePlaying();
+                break;
+            case GameState::GAME_OVER:
+                handleGameOver(false); // Ali true, če je igralec zmagal
+                break;
+            default:
+                break;
+        }
     }
-    return *sInstance;
 }
 
-bool Game::Init(const char* title, int width, int height) {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        return false;
+void Game::handleMenu() {
+    menu.displayMenu();
+    menu.handleInput();
+
+    if (menu.isNameEntered()) {
+        playerName = menu.getPlayerName();
+        currentState = GameState::PLAYING;
     }
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
-    if (!window) {
-        return false;
+}
+
+void Game::handlePlaying() {
+    // Logika za igranje igre
+    if (!inFarm) {
+        // Premikanje igralca in odkrivanje farme
+    } else {
+        timer.start();
+        // Logika za farmo (nasprotniki, bik, izhod)
     }
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (!renderer) {
-        return false;
+}
+
+void Game::handleGameOver(bool won) {
+    if (won) {
+        std::cout << "Congratulations, " << playerName << "! You won!\n";
+    } else {
+        std::cout << "Game Over, " << playerName << ". Better luck next time!\n";
     }
-    isRunning = true;
-    return true;
-}
-
-void Game::Run() {
-    while (isRunning) {
-        Update(0.016f); // 60 FPS
-        Render();
-    }
-    Clean();
-}
-
-void Game::Update(float /*deltaTime*/) {
-    // Posodobitev logike igre
-}
-
-void Game::Render() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    // Risanje igralca
-    SDL_Rect playerRect = { player->getX() * 20, player->getY() * 20, 20, 20 };
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_RenderFillRect(renderer, &playerRect);
-
-    SDL_RenderPresent(renderer);
-}
-
-void Game::Clean() {
-    delete player;
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-}
-
-bool Game::IsRunning() const {
-    return isRunning;
+    replayManager.saveReplay("replay.txt");
+    currentState = GameState::MENU;
 }

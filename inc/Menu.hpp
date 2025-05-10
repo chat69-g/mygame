@@ -4,26 +4,15 @@
 #include <vector>
 #include <string>
 
-struct ScoreEntry {
-    std::string name;
-    int score;
-    time_t time;
-    int level;
-};
-
 class Menu {
-public:
-    Menu();
-    ~Menu();
-
-     void HandleEvents(SDL_Event& event);
-    void Render(SDL_Renderer* renderer);
-    bool StartGame() const;  // Samo ena deklaracija
-    void AddHighScore(const std::string& name, int score);
-
-private:
-    SDL_Texture* background;
-    SDL_Texture* titleTexture;
-    std::vector<ScoreEntry> highScores;
-    bool startGame;
-};
+    private:
+        std::string playerName;
+        bool nameEntered;
+    
+    public:
+        Menu();
+        void displayMenu();
+        void handleInput();
+        std::string getPlayerName() const;
+        bool isNameEntered() const;
+    };

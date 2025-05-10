@@ -6,61 +6,46 @@
 #include <iostream>  // Dodano za std::cout
 #include <ostream>   // Dodano za std::endl
 
-Menu::Menu() : startGame(false) {
-    TextureManager& tm = TextureManager::getInstance();
-    background = tm.get("menu_bg");
-    
-    // Inicializacija naslova in high scores
-    highScores = {
-        {"Player1", 1000, time(nullptr), 1},
-        {"Player2", 800, time(nullptr), 1},
-        {"Player3", 600, time(nullptr), 1}
-    };
+Menu::Menu() : nameEntered(false) {}
+
+void Menu::displayMenu() {
+    std::cout << "=== MENU ===\n";
+    std::cout << "1. View Top 5 Scores\n";
+    std::cout << "2. Start Game\n";
+    std::cout << "3. Replay Last Game\n";
+    std::cout << "Enter your choice: ";
 }
 
-Menu::~Menu() {
-    // Textures managed by TextureManager
-}
+void Menu::handleInput() {
+    int choice;
+    std::cin >> choice;
 
-void Menu::HandleEvents(SDL_Event& event) {
-    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_RETURN) {
-        startGame = true;
-        std::cout << "ENTER pressed - startGame set to true" << std::endl;
+    switch (choice) {
+        case 1:
+            std::cout << "Top 5 Scores:\n";
+            // Prikaz rezultatov (implementirano v ScoreManager)
+            break;
+        case 2:
+            if (!nameEntered) {
+                std::cout << "Enter your name: ";
+                std::cin >> playerName;
+                nameEntered = true;
+            }
+            break;
+        case 3:
+            std::cout << "Replaying last game...\n";
+            // Replay logika (implementirano v ReplayManager)
+            break;
+        default:
+            std::cout << "Invalid choice. Try again.\n";
+            break;
     }
 }
 
-bool Menu::StartGame() const {
-    std::cout << "Checking startGame: " << startGame << std::endl;
-    return startGame;
+std::string Menu::getPlayerName() const {
+    return playerName;
 }
 
-void Menu::Render(SDL_Renderer* renderer) {
-    SDL_RenderCopy(renderer, background, nullptr, nullptr);
-    
-    // Render high scores
-    TTF_Font* font = TTF_OpenFont("assets/fonts/arial.ttf", 24);
-    if (font) {
-        SDL_Color white = {255, 255, 255, 255};
-        for (size_t i = 0; i < highScores.size(); ++i) {
-            std::string scoreText = highScores[i].name + ": " + std::to_string(highScores[i].score);
-            SDL_Surface* surface = TTF_RenderText_Solid(font, scoreText.c_str(), white);
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-            
-            SDL_Rect destRect = {100, 200 + static_cast<int>(i) * 30, surface->w, surface->h};
-            SDL_RenderCopy(renderer, texture, nullptr, &destRect);
-            
-            SDL_FreeSurface(surface);
-            SDL_DestroyTexture(texture);
-        }
-        TTF_CloseFont(font);
-    }
-}
-
-void Menu::AddHighScore(const std::string& name, int score) {
-    highScores.push_back({name, score, time(nullptr), 1});
-    std::sort(highScores.begin(), highScores.end(), 
-        [](const ScoreEntry& a, const ScoreEntry& b) { return a.score > b.score; });
-    if (highScores.size() > 10) {
-        highScores.resize(10);
-    }
+bool Menu::isNameEntered() const {
+    return nameEntered;
 }
