@@ -1,14 +1,21 @@
 #include "Timer.hpp"
 
+Timer::Timer() : running(false) {}
+
 void Timer::start() {
-    startTime = std::chrono::steady_clock::now(); // Nastavi začetni čas
+    startTime = std::chrono::high_resolution_clock::now();
+    running = true;
 }
 
-int Timer::getElapsedTime() const {
-    auto now = std::chrono::steady_clock::now();
-    return std::chrono::duration_cast<std::chrono::seconds>(now - startTime).count();
+void Timer::stop() {
+    endTime = std::chrono::high_resolution_clock::now();
+    running = false;
 }
 
-bool Timer::isTimeUp() const {
-    return getElapsedTime() >= duration; // Preveri, ali je čas potekel
+double Timer::getElapsedTime() const {
+    if (running) {
+        auto now = std::chrono::high_resolution_clock::now();
+        return std::chrono::duration<double>(now - startTime).count();
+    }
+    return std::chrono::duration<double>(endTime - startTime).count();
 }

@@ -3,13 +3,13 @@
 
 class Timer {
 private:
-    std::chrono::time_point<std::chrono::steady_clock> startTime;
-    int duration; // Trajanje v sekundah
+    std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
+    std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
+    bool running;
 
 public:
-    Timer() : duration(0) {}
-    Timer(int seconds) : duration(seconds) {}
-    void start();
-    int getElapsedTime() const;
-    bool isTimeUp() const; // Nova metoda
+    Timer(); // Deklaracija konstruktorja
+    void start(); // Deklaracija metode start
+    void stop(); // Deklaracija metode stop
+    double getElapsedTime() const; // Deklaracija metode getElapsedTime
 };

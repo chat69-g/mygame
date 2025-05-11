@@ -1,15 +1,11 @@
 #include "Menu.hpp"
-#include <SDL2/SDL_ttf.h>
-#include <ctime>
-#include <algorithm>
-#include <iostream>  // Dodano za std::cout
-#include <ostream>   // Dodano za std::endl
+#include <iostream>
 
-Menu::Menu(SDL_Renderer* renderer) : renderer(renderer), nameEntered(false) {
+Menu::Menu(SDL_Renderer* renderer) : renderer(renderer), nameEntered(false), selectedOption(0) {
     if (TTF_Init() == -1) {
         std::cerr << "Failed to initialize SDL_ttf: " << TTF_GetError() << std::endl;
     }
-    font = TTF_OpenFont("assets/fonts/font.ttf", 24); // Pot do pisave
+    font = TTF_OpenFont("assets/fonts/Roboto-Bold.ttf", 24);
     if (!font) {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
     }
@@ -21,12 +17,12 @@ Menu::~Menu() {
 }
 
 void Menu::displayMenu() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Črno ozadje
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     SDL_Color white = {255, 255, 255, 255};
+    SDL_Color yellow = {255, 255, 0, 255};
 
-    // Prikaz naslova menija
     SDL_Surface* titleSurface = TTF_RenderText_Solid(font, "=== MENU ===", white);
     SDL_Texture* titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
     SDL_Rect titleRect = {200, 50, titleSurface->w, titleSurface->h};
@@ -34,15 +30,24 @@ void Menu::displayMenu() {
     SDL_FreeSurface(titleSurface);
     SDL_DestroyTexture(titleTexture);
 
-    // Prikaz možnosti menija
-    const char* options[] = {"1. View Top 5 Scores", "2. Start Game", "3. Replay Last Game"};
-    for (int i = 0; i < 3; ++i) {
-        SDL_Surface* optionSurface = TTF_RenderText_Solid(font, options[i], white);
+    for (size_t i = 0; i < options.size(); ++i) {
+        SDL_Color color = (i == selectedOption) ? yellow : white;
+        SDL_Surface* optionSurface = TTF_RenderText_Solid(font, options[i].c_str(), color);
         SDL_Texture* optionTexture = SDL_CreateTextureFromSurface(renderer, optionSurface);
-        SDL_Rect optionRect = {200, 150 + i * 50, optionSurface->w, optionSurface->h};
+        SDL_Rect optionRect = {200, 150 + static_cast<int>(i) * 50, optionSurface->w, optionSurface->h};
         SDL_RenderCopy(renderer, optionTexture, nullptr, &optionRect);
         SDL_FreeSurface(optionSurface);
         SDL_DestroyTexture(optionTexture);
+    }
+
+    if (!nameEntered) {
+        std::string prompt = "Enter your name: " + playerName;
+        SDL_Surface* nameSurface = TTF_RenderText_Solid(font, prompt.c_str(), white);
+        SDL_Texture* nameTexture = SDL_CreateTextureFromSurface(renderer, nameSurface);
+        SDL_Rect nameRect = {200, 300, nameSurface->w, nameSurface->h};
+        SDL_RenderCopy(renderer, nameTexture, nullptr, &nameRect);
+        SDL_FreeSurface(nameSurface);
+        SDL_DestroyTexture(nameTexture);
     }
 
     SDL_RenderPresent(renderer);
@@ -50,25 +55,47 @@ void Menu::displayMenu() {
 
 void Menu::handleInput(SDL_Event& event) {
     if (event.type == SDL_KEYDOWN) {
-        switch (event.key.keysym.sym) {
-            case SDLK_1:
-                std::cout << "Top 5 Scores:\n";
-                // Prikaz rezultatov (implementirano v ScoreManager)
-                break;
-            case SDLK_2:
-                if (!nameEntered) {
-                    std::cout << "Enter your name: ";
-                    std::cin >> playerName;
-                    nameEntered = true;
-                }
-                break;
-            case SDLK_3:
-                std::cout << "Replaying last game...\n";
-                // Replay logika (implementirano v ReplayManager)
-                break;
-            default:
-                std::cout << "Invalid choice. Try again.\n";
-                break;
+        if (!nameEntered) {
+            if (event.key.keysym.sym == SDLK_RETURN) {
+                nameEntered = true;
+            } else if (event.key.keysym.sym == SDLK_BACKSPACE && !playerName.empty()) {
+                playerName.pop_back();
+            } else if (event.key.keysym.sym >= SDLK_a && event.key.keysym.sym <= SDLK_z) {
+                playerName += static_cast<char>(event.key.keysym.sym);
+            }
+        } else {
+            switch (event.key.keysym.sym) {
+                case SDLK_UP:
+                case SDLK_w:
+                    selectedOption = (selectedOption - 1 + options.size()) % options.size();
+                    break;
+                case SDLK_DOWN:
+                case SDLK_s:
+                    selectedOption = (selectedOption + 1) % options.size();
+                    break;
+                case SDLK_RETURN:
+                    if (selectedOption == 0) {
+                        SDL_Event scoreEvent;
+                        scoreEvent.type = SDL_USEREVENT;
+                        scoreEvent.user.code = 1;
+                        SDL_PushEvent(&scoreEvent);
+                    } else if (selectedOption == 1) {
+                        if (!playerName.empty()) {
+                            SDL_Event startEvent;
+                            startEvent.type = SDL_USEREVENT;
+                            startEvent.user.code = 2;
+                            SDL_PushEvent(&startEvent);
+                        } else {
+                            std::cout << "Please enter your name first!" << std::endl;
+                        }
+                    } else if (selectedOption == 2) {
+                        SDL_Event replayEvent;
+                        replayEvent.type = SDL_USEREVENT;
+                        replayEvent.user.code = 3;
+                        SDL_PushEvent(&replayEvent);
+                    }
+                    break;
+            }
         }
     }
 }

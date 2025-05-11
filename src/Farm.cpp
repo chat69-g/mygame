@@ -1,5 +1,6 @@
 #include "Farm.hpp"
-#include <vector> // Dodano za std::vector
+#include <cmath>
+#include <cstdlib>
 
 Farm::Farm(int maxX, int maxY) : visible(false) {
     x = rand() % maxX;
@@ -11,21 +12,11 @@ bool Farm::isVisible() const {
 }
 
 void Farm::checkProximity(int playerX, int playerY) {
-    if (std::abs(playerX - x) < 5 && std::abs(playerY - y) < 5) {
+    if (std::abs(playerX - x) <= 5 && std::abs(playerY - y) <= 5) { // Povečana razdalja
         visible = true;
     }
 }
 
-void Farm::render() const {
-    if (visible) {
-        std::cout << "Farm is at (" << x << ", " << y << ")" << std::endl;
-    }
-}
-
-bool Farm::HasMainBull() const {
-    return true; // Ali druga logika
-}
-
-std::vector<Animal> Farm::GetAnimals() const {
-    return {}; // Za zdaj vrne prazen seznam, dokler ne implementirate logike
+bool Farm::activate(int playerX, int playerY) {
+    return visible && playerX == x && playerY == y; // Aktivacija, če je igralec na farmi
 }

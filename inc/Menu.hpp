@@ -5,17 +5,19 @@
 #include <string>
 
 class Menu {
-    private:
-        SDL_Renderer* renderer;
-        TTF_Font* font;
-        std::string playerName;
-        bool nameEntered;
-    
-    public:
-        Menu(SDL_Renderer* renderer);
-        ~Menu();
-        void displayMenu();
-        void handleInput(SDL_Event& event);
-        std::string getPlayerName() const;
-        bool isNameEntered() const;
-    };
+private:
+    SDL_Renderer* renderer;
+    TTF_Font* font;
+    std::string playerName;
+    bool nameEntered;
+    size_t selectedOption; // Spremenjeno iz int v size_t
+    std::vector<std::string> options = {"View Top 5 Scores", "Start Game", "Replay Last Game"};
+
+public:
+    Menu(SDL_Renderer* renderer);
+    ~Menu();
+    void displayMenu();
+    void handleInput(SDL_Event& event);
+    std::string getPlayerName() const;
+    bool isNameEntered() const;
+};

@@ -1,122 +1,118 @@
 #include "Game.hpp"
 #include <iostream>
-#include <SDL2/SDL.h>
 
 Game::Game(SDL_Renderer* renderer)
-    : currentState(GameState::MENU),
+    : renderer(renderer),
+      currentState(GameState::MENU),
       menu(renderer),
-      timer(0),
       player(40, 30),
       farm(40, 30),
       animal(40, 30),
-      enemies({Enemy(40, 30), Enemy(40, 30)}),
-      timerStarted(false),
-      inFarm(false) {}
+      timer(),
+      inFarm(false),
+      timerStarted(false) {}
 
-  void Game::run() {
-    while (true) {
-        switch (currentState) {
-            case GameState::MENU:
-                handleMenu();
-                break;
+void Game::run() {
+    bool running = true;
+    SDL_Event event;
 
-            case GameState::PLAYING:
-                handlePlaying();
-                break;
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = false;
+            }
 
-            case GameState::PAUSED:
-                std::cout << "Game is paused. Press any key to continue...\n";
-                std::cin.ignore();
-                currentState = GameState::PLAYING;
-                break;
+            if (event.type == SDL_USEREVENT) {
+                if (event.user.code == 1) {
+                    scoreManager.displayTopScores();
+                } else if (event.user.code == 2) {
+                    currentState = GameState::PLAYING;
+                } else if (event.user.code == 3) {
+                    currentState = GameState::REPLAY;
+                }
+            }
 
-            case GameState::GAME_OVER:
-                handleGameOver(false); // Ali true, če je igralec zmagal
-                break;
+            if (currentState == GameState::MENU) {
+                menu.handleInput(event);
+            }
+        }
+
+        if (currentState == GameState::MENU) {
+            menu.displayMenu();
+        } else if (currentState == GameState::PLAYING) {
+            handlePlaying();
+        } else if (currentState == GameState::REPLAY) {
+            handleReplay();
         }
     }
 }
 
 void Game::handleMenu() {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            currentState = GameState::GAME_OVER;
-            return;
-        }
-        menu.handleInput(event);
-    }
-
     menu.displayMenu();
-
-    if (menu.isNameEntered()) {
-        playerName = menu.getPlayerName(); // Shranimo ime igralca
-        currentState = GameState::PLAYING; // Preklopimo v stanje igranja
-    }
 }
 
 void Game::handlePlaying() {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            currentState = GameState::GAME_OVER;
-            return;
-        } else if (event.type == SDL_KEYDOWN) {
-            switch (event.key.keysym.sym) {
-                case SDLK_w: player.move('w'); break;
-                case SDLK_s: player.move('s'); break;
-                case SDLK_a: player.move('a'); break;
-                case SDLK_d: player.move('d'); break;
-            }
-        }
-    }
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    const Uint8* keyState = SDL_GetKeyboardState(nullptr);
+    player.update(keyState);
+
+    SDL_Rect playerRect = {player.getX() * 20, player.getY() * 20, 20, 20};
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    SDL_RenderFillRect(renderer, &playerRect);
 
     if (!inFarm) {
         farm.checkProximity(player.getX(), player.getY());
-        if (farm.isVisible()) {
+        if (farm.activate(player.getX(), player.getY())) {
             inFarm = true;
+            timer.start();
         }
-    } else {
+    }
+
+    if (farm.isVisible()) {
+        SDL_Rect farmRect = {farm.getX() * 20, farm.getY() * 20, 20, 20};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        SDL_RenderFillRect(renderer, &farmRect);
+    }
+
+    if (inFarm) {
         if (!timerStarted) {
-            timer.start(); // Začni timer, ko igralec vstopi v farmo
+            timer.start();
             timerStarted = true;
         }
 
         for (auto& enemy : enemies) {
             enemy.update(player.getX(), player.getY());
-            if (enemy.isNearPlayer(player.getX(), player.getY())) {
-                player.loseLife();
-                if (!player.isAlive()) {
-                    currentState = GameState::GAME_OVER;
-                    return;
-                }
-            }
+            SDL_Rect enemyRect = {enemy.getX() * 20, enemy.getY() * 20, 20, 20};
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderFillRect(renderer, &enemyRect);
         }
 
-        animal.checkRescue(player.getX(), player.getY());
-        if (animal.isRescued()) {
-            std::cout << "You rescued the animal! Find the exit!" << std::endl;
-            // Logika za prikaz izhoda
+        SDL_Rect animalRect = {animal.getX() * 20, animal.getY() * 20, 20, 20};
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        SDL_RenderFillRect(renderer, &animalRect);
+
+        if (animal.checkRescue(player.getX(), player.getY())) {
+            std::cout << "Animal rescued! Find the exit!" << std::endl;
         }
 
-        if (timer.isTimeUp()) {
-            std::cout << "Game Over! Time is up!" << std::endl;
-            currentState = GameState::GAME_OVER;
-            return;
+        if (player.hasExitedFarm()) {
+            timer.stop();
+            double elapsedTime = timer.getElapsedTime();
+            std::cout << "You completed the game in " << elapsedTime << " seconds!" << std::endl;
+
+            scoreManager.addScore(menu.getPlayerName(), elapsedTime);
+            scoreManager.saveScores("scores.txt");
+
+            currentState = GameState::MENU;
         }
     }
 
-    // Rendering (uporabite SDL za prikazovanje)
+    SDL_RenderPresent(renderer);
 }
 
-void Game::handleGameOver(bool won) {
-    if (won) {
-        std::cout << "Congratulations, " << playerName << "! You won!\n";
-        scoreManager.addScore(playerName, timer.getElapsedTime());
-        scoreManager.saveScores("scores.txt");
-    } else {
-        std::cout << "Game Over, " << playerName << ". Better luck next time!\n";
-    }
-    replayManager.saveReplay("replay.txt"); // Shranimo replay igre
+void Game::handleReplay() {
+    replayManager.displayReplay();
     currentState = GameState::MENU;
 }

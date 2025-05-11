@@ -1,15 +1,14 @@
 #pragma once
-
-#include <string>
 #include <vector>
+#include <string>
 
 class ReplayManager {
 private:
-    std::vector<std::string> moves;
+    std::vector<std::pair<int, int>> movements;
 
 public:
-    void recordMove(const std::string& move);
-    void saveReplay(const std::string& filename);
+    void recordMovement(int x, int y);
+    void saveReplay(const std::string& filename) const;
     void loadReplay(const std::string& filename);
-    void playReplay() const;
+    void displayReplay() const;
 };

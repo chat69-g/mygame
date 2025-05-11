@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 class Animal {
 private:
     int x, y;
@@ -10,8 +8,8 @@ private:
 public:
     Animal(int maxX, int maxY);
     bool isRescued() const;
-    void checkRescue(int playerX, int playerY);
-    void render() const;
+    void moveRandomly(int maxX, int maxY);
+    bool checkRescue(int playerX, int playerY);
     int getX() const { return x; }
     int getY() const { return y; }
 };

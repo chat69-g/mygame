@@ -1,32 +1,43 @@
 #include "Player.hpp"
+#include <cstdlib>
 
-Player::Player(int maxX, int maxY) : lives(3) {
+Player::Player(int maxX, int maxY) : lives(3), lastMoveTime(0), speed(200) {
     x = rand() % maxX;
     y = rand() % maxY;
 }
 
+void Player::update(const Uint8* keyState) {
+    Uint32 currentTime = SDL_GetTicks();
+    if (currentTime - lastMoveTime < speed) {
+        return;
+    }
+    lastMoveTime = currentTime;
+
+    if (keyState[SDL_SCANCODE_W]) --y;
+    if (keyState[SDL_SCANCODE_S]) ++y;
+    if (keyState[SDL_SCANCODE_A]) --x;
+    if (keyState[SDL_SCANCODE_D]) ++x;
+}
+
 void Player::move(char direction) {
     switch (direction) {
-        case 'w': y--; break;
-        case 's': y++; break;
-        case 'a': x--; break;
-        case 'd': x++; break;
+        case 'w': --y; break;
+        case 's': ++y; break;
+        case 'a': --x; break;
+        case 'd': ++x; break;
     }
 }
 
 void Player::loseLife() {
-    lives--;
+    if (lives > 0) {
+        --lives;
+    }
 }
 
 bool Player::isAlive() const {
     return lives > 0;
 }
 
-void Player::render() const {
-    std::cout << "Player is at (" << x << ", " << y << ") with " << lives << " lives left." << std::endl;
-}
-
-void Player::TakeDamage(int damage) {
-    lives -= damage;
-    if (lives < 0) lives = 0;
+bool Player::hasExitedFarm() const {
+    return x < 0 || y < 0 || x >= 40 || y >= 30;
 }
