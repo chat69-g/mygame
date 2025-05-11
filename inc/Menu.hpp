@@ -10,8 +10,8 @@ private:
     TTF_Font* font;
     std::string playerName;
     bool nameEntered;
-    size_t selectedOption; // Spremenjeno iz int v size_t
-    std::vector<std::string> options = {"View Top 5 Scores", "Start Game", "Replay Last Game"};
+    size_t selectedOption;
+    std::vector<std::string> options = {"Enter Username", "Start Game", "View Top 5 Scores", "Replay Last Game"};
 
 public:
     Menu(SDL_Renderer* renderer);
@@ -20,4 +20,5 @@ public:
     void handleInput(SDL_Event& event);
     std::string getPlayerName() const;
     bool isNameEntered() const;
+    TTF_Font* getFont() const { return font; }
 };

@@ -38,4 +38,5 @@ public:
     void handleMenu();
     void handlePlaying();
     void handleReplay();
+    void handleEndScreen(bool won, double elapsedTime);
 };

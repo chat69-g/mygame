@@ -1,8 +1,11 @@
 #pragma once
+#include <SDL2/SDL.h>
 
 class Enemy {
 private:
     int x, y;
+    Uint32 lastMoveTime; // Čas zadnjega premika
+    Uint32 speed;        // Hitrost premikanja v milisekundah
 
 public:
     Enemy(int maxX, int maxY);

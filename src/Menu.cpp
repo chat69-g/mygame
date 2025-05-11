@@ -17,7 +17,7 @@ Menu::~Menu() {
 }
 
 void Menu::displayMenu() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Počistimo zaslon z črno barvo
     SDL_RenderClear(renderer);
 
     SDL_Color white = {255, 255, 255, 255};
@@ -40,11 +40,11 @@ void Menu::displayMenu() {
         SDL_DestroyTexture(optionTexture);
     }
 
-    if (!nameEntered) {
+    if (selectedOption == 0) { // Prikaz za vnos imena
         std::string prompt = "Enter your name: " + playerName;
         SDL_Surface* nameSurface = TTF_RenderText_Solid(font, prompt.c_str(), white);
         SDL_Texture* nameTexture = SDL_CreateTextureFromSurface(renderer, nameSurface);
-        SDL_Rect nameRect = {200, 300, nameSurface->w, nameSurface->h};
+        SDL_Rect nameRect = {200, 400, nameSurface->w, nameSurface->h}; // Premaknemo besedilo nižje
         SDL_RenderCopy(renderer, nameTexture, nullptr, &nameRect);
         SDL_FreeSurface(nameSurface);
         SDL_DestroyTexture(nameTexture);
@@ -55,47 +55,51 @@ void Menu::displayMenu() {
 
 void Menu::handleInput(SDL_Event& event) {
     if (event.type == SDL_KEYDOWN) {
-        if (!nameEntered) {
-            if (event.key.keysym.sym == SDLK_RETURN) {
-                nameEntered = true;
-            } else if (event.key.keysym.sym == SDLK_BACKSPACE && !playerName.empty()) {
-                playerName.pop_back();
-            } else if (event.key.keysym.sym >= SDLK_a && event.key.keysym.sym <= SDLK_z) {
-                playerName += static_cast<char>(event.key.keysym.sym);
-            }
-        } else {
-            switch (event.key.keysym.sym) {
-                case SDLK_UP:
-                case SDLK_w:
-                    selectedOption = (selectedOption - 1 + options.size()) % options.size();
-                    break;
-                case SDLK_DOWN:
-                case SDLK_s:
-                    selectedOption = (selectedOption + 1) % options.size();
-                    break;
-                case SDLK_RETURN:
-                    if (selectedOption == 0) {
-                        SDL_Event scoreEvent;
-                        scoreEvent.type = SDL_USEREVENT;
-                        scoreEvent.user.code = 1;
-                        SDL_PushEvent(&scoreEvent);
-                    } else if (selectedOption == 1) {
-                        if (!playerName.empty()) {
-                            SDL_Event startEvent;
-                            startEvent.type = SDL_USEREVENT;
-                            startEvent.user.code = 2;
-                            SDL_PushEvent(&startEvent);
-                        } else {
-                            std::cout << "Please enter your name first!" << std::endl;
-                        }
-                    } else if (selectedOption == 2) {
-                        SDL_Event replayEvent;
-                        replayEvent.type = SDL_USEREVENT;
-                        replayEvent.user.code = 3;
-                        SDL_PushEvent(&replayEvent);
+        switch (event.key.keysym.sym) {
+            case SDLK_UP:
+            case SDLK_w:
+                selectedOption = (selectedOption - 1 + options.size()) % options.size();
+                break;
+            case SDLK_DOWN:
+            case SDLK_s:
+                selectedOption = (selectedOption + 1) % options.size();
+                break;
+            case SDLK_RETURN:
+                if (selectedOption == 0) { // Izbira za vnos imena
+                    if (!nameEntered) {
+                        nameEntered = true;
                     }
-                    break;
-            }
+                } else if (selectedOption == 1) { // Izbira za začetek igre
+                    if (playerName.empty()) {
+                        std::cout << "Please enter your name first!" << std::endl;
+                    } else {
+                        SDL_Event startEvent;
+                        startEvent.type = SDL_USEREVENT;
+                        startEvent.user.code = 2;
+                        SDL_PushEvent(&startEvent);
+                    }
+                } else if (selectedOption == 2) { // Izbira za prikaz top 5 rezultatov
+                    SDL_Event scoreEvent;
+                    scoreEvent.type = SDL_USEREVENT;
+                    scoreEvent.user.code = 1;
+                    SDL_PushEvent(&scoreEvent);
+                } else if (selectedOption == 3) { // Izbira za replay
+                    SDL_Event replayEvent;
+                    replayEvent.type = SDL_USEREVENT;
+                    replayEvent.user.code = 3;
+                    SDL_PushEvent(&replayEvent);
+                }
+                break;
+            case SDLK_BACKSPACE: // Brisanje znakov pri vnosu imena
+                if (!playerName.empty()) {
+                    playerName.pop_back();
+                }
+                break;
+            default:
+                if (event.key.keysym.sym >= SDLK_a && event.key.keysym.sym <= SDLK_z) {
+                    playerName += static_cast<char>(event.key.keysym.sym);
+                }
+                break;
         }
     }
 }
