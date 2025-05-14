@@ -7,13 +7,12 @@
 void ScoreManager::addScore(const std::string& name, double time) {
     scores.emplace_back(name, time);
     std::sort(scores.begin(), scores.end(), [](const auto& a, const auto& b) {
-        return a.second < b.second;
+        return a.second < b.second; // Sortiramo po času
     });
     if (scores.size() > 5) {
-        scores.pop_back();
+        scores.resize(5); // Ohranimo samo top 5 rezultatov
     }
 }
-
 void ScoreManager::saveScores(const std::string& filename) const {
     std::ofstream file(filename);
     if (!file) {
@@ -38,7 +37,6 @@ void ScoreManager::loadScores(const std::string& filename) {
         scores.emplace_back(name, time);
     }
 }
-
 void ScoreManager::displayTopScores(SDL_Renderer* renderer, TTF_Font* font) const {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);

@@ -40,19 +40,18 @@ void Menu::displayMenu() {
         SDL_DestroyTexture(optionTexture);
     }
 
-    if (selectedOption == 0) { // Prikaz za vnos imena
-        std::string prompt = "Enter your name: " + playerName;
-        SDL_Surface* nameSurface = TTF_RenderText_Solid(font, prompt.c_str(), white);
-        SDL_Texture* nameTexture = SDL_CreateTextureFromSurface(renderer, nameSurface);
-        SDL_Rect nameRect = {200, 400, nameSurface->w, nameSurface->h}; // Premaknemo besedilo nižje
-        SDL_RenderCopy(renderer, nameTexture, nullptr, &nameRect);
-        SDL_FreeSurface(nameSurface);
-        SDL_DestroyTexture(nameTexture);
-    }
+    // Obarvamo napis za vnos imena, če je izbrana prva opcija
+    SDL_Color inputColor = (selectedOption == 0 && nameEntered) ? yellow : white;
+    std::string prompt = "Enter your name: " + playerName;
+    SDL_Surface* nameSurface = TTF_RenderText_Solid(font, prompt.c_str(), inputColor);
+    SDL_Texture* nameTexture = SDL_CreateTextureFromSurface(renderer, nameSurface);
+    SDL_Rect nameRect = {200, 400, nameSurface->w, nameSurface->h};
+    SDL_RenderCopy(renderer, nameTexture, nullptr, &nameRect);
+    SDL_FreeSurface(nameSurface);
+    SDL_DestroyTexture(nameTexture);
 
     SDL_RenderPresent(renderer);
 }
-
 void Menu::handleInput(SDL_Event& event) {
     if (event.type == SDL_KEYDOWN) {
         switch (event.key.keysym.sym) {
@@ -65,32 +64,40 @@ void Menu::handleInput(SDL_Event& event) {
                 selectedOption = (selectedOption + 1) % options.size();
                 break;
             case SDLK_RETURN:
-                if (selectedOption == 0) { // Izbira za vnos imena
+                if (selectedOption == 0) { // Vnos imena
                     if (!nameEntered) {
-                        nameEntered = true;
-                    }
-                } else if (selectedOption == 1) { // Izbira za začetek igre
-                    if (playerName.empty()) {
-                        std::cout << "Please enter your name first!" << std::endl;
+                        nameEntered = true; // Obarvamo napis rumeno
                     } else {
-                        SDL_Event startEvent;
-                        startEvent.type = SDL_USEREVENT;
-                        startEvent.user.code = 2;
-                        SDL_PushEvent(&startEvent);
+                        nameEntered = false; // Potrdimo ime in obarvamo napis belo
                     }
-                } else if (selectedOption == 2) { // Izbira za prikaz top 5 rezultatov
+                } else if (selectedOption == 1 && playerName.empty()) {
+                    SDL_Color red = {255, 0, 0, 255};
+                    SDL_Surface* warningSurface = TTF_RenderText_Solid(font, "Please enter your name!", red);
+                    SDL_Texture* warningTexture = SDL_CreateTextureFromSurface(renderer, warningSurface);
+                    SDL_Rect warningRect = {200, 500, warningSurface->w, warningSurface->h};
+                    SDL_RenderCopy(renderer, warningTexture, nullptr, &warningRect);
+                    SDL_RenderPresent(renderer);
+                    SDL_FreeSurface(warningSurface);
+                    SDL_DestroyTexture(warningTexture);
+                    SDL_Delay(2000);
+                } else if (selectedOption == 1) {
+                    SDL_Event startEvent;
+                    startEvent.type = SDL_USEREVENT;
+                    startEvent.user.code = 2;
+                    SDL_PushEvent(&startEvent);
+                } else if (selectedOption == 2) {
                     SDL_Event scoreEvent;
                     scoreEvent.type = SDL_USEREVENT;
                     scoreEvent.user.code = 1;
                     SDL_PushEvent(&scoreEvent);
-                } else if (selectedOption == 3) { // Izbira za replay
+                } else if (selectedOption == 3) {
                     SDL_Event replayEvent;
                     replayEvent.type = SDL_USEREVENT;
                     replayEvent.user.code = 3;
                     SDL_PushEvent(&replayEvent);
                 }
                 break;
-            case SDLK_BACKSPACE: // Brisanje znakov pri vnosu imena
+            case SDLK_BACKSPACE:
                 if (!playerName.empty()) {
                     playerName.pop_back();
                 }

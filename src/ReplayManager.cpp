@@ -31,39 +31,29 @@ void ReplayManager::loadReplay(const std::string& filename) {
     }
 }
 
-void ReplayManager::displayReplay(SDL_Renderer* renderer, TTF_Font* font) const {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    SDL_Color white = {255, 255, 255, 255};
-    SDL_Surface* titleSurface = TTF_RenderText_Solid(font, "Replay of Last Game", white);
-    SDL_Texture* titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
-    SDL_Rect titleRect = {200, 50, titleSurface->w, titleSurface->h};
-    SDL_RenderCopy(renderer, titleTexture, nullptr, &titleRect);
-    SDL_FreeSurface(titleSurface);
-    SDL_DestroyTexture(titleTexture);
-
-    int yOffset = 150;
+void ReplayManager::displayReplay(SDL_Renderer* renderer, [[maybe_unused]] TTF_Font* font) const {
+    SDL_Event event;
     for (const auto& move : movements) {
-        std::string text = "Player moved to (" + std::to_string(move.first) + ", " + std::to_string(move.second) + ")";
-        SDL_Surface* moveSurface = TTF_RenderText_Solid(font, text.c_str(), white);
-        SDL_Texture* moveTexture = SDL_CreateTextureFromSurface(renderer, moveSurface);
-        SDL_Rect moveRect = {200, yOffset, moveSurface->w, moveSurface->h};
-        SDL_RenderCopy(renderer, moveTexture, nullptr, &moveRect);
-        SDL_FreeSurface(moveSurface);
-        SDL_DestroyTexture(moveTexture);
-        yOffset += 50;
-    }
-
-    SDL_RenderPresent(renderer);
-
-    bool waiting = true;
-    SDL_Event waitEvent;
-    while (waiting) {
-        while (SDL_PollEvent(&waitEvent)) {
-            if (waitEvent.type == SDL_KEYDOWN && waitEvent.key.keysym.sym == SDLK_ESCAPE) {
-                waiting = false;
+        // Preverimo, ali je bil pritisnjen ESC
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
+                return; // Prekinemo replay in se vrnemo v meni
             }
         }
+
+        // Počistimo zaslon z črno barvo
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        // Izrišemo igralca na trenutni poziciji
+        SDL_Rect playerRect = {move.first * 20, move.second * 20, 20, 20};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Bela barva za igralca
+        SDL_RenderFillRect(renderer, &playerRect);
+
+        // Posodobimo zaslon
+        SDL_RenderPresent(renderer);
+
+        // Skrajšamo čas med premiki za hitrejši replay
+        SDL_Delay(30); // 30 ms za hitrejši replay
     }
 }

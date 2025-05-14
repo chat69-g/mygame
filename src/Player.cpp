@@ -4,6 +4,10 @@
 Player::Player(int maxX, int maxY) : lives(3), lastMoveTime(0), speed(200) {
     x = rand() % maxX;
     y = rand() % maxY;
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+    if (x >= maxX) x = maxX - 1;
+    if (y >= maxY) y = maxY - 1;
 }
 
 void Player::update(const Uint8* keyState) {
@@ -13,10 +17,10 @@ void Player::update(const Uint8* keyState) {
     }
     lastMoveTime = currentTime;
 
-    if (keyState[SDL_SCANCODE_W]) --y;
-    if (keyState[SDL_SCANCODE_S]) ++y;
-    if (keyState[SDL_SCANCODE_A]) --x;
-    if (keyState[SDL_SCANCODE_D]) ++x;
+    if (keyState[SDL_SCANCODE_W] && y > 0) --y;
+    if (keyState[SDL_SCANCODE_S] && y < 29) ++y; // Omejitev na 30 vrstic
+    if (keyState[SDL_SCANCODE_A] && x > 0) --x;
+    if (keyState[SDL_SCANCODE_D] && x < 39) ++x; // Omejitev na 40 stolpcev
 }
 
 void Player::move(char direction) {

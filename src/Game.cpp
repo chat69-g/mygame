@@ -3,7 +3,7 @@
 
 Game::Game(SDL_Renderer* renderer)
     : renderer(renderer),
-      currentState(GameState::MENU), // Začetno stanje je MENU
+      currentState(GameState::MENU),
       menu(renderer),
       player(40, 30),
       farm(40, 30),
@@ -11,6 +11,7 @@ Game::Game(SDL_Renderer* renderer)
       timer(),
       inFarm(false),
       timerStarted(false) {}
+
 
       void Game::run() {
         bool running = true;
@@ -63,92 +64,113 @@ void Game::handleMenu() {
 }
 
 void Game::handlePlaying() {
+    // Počistimo zaslon z črno barvo
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
+    // Posodobimo stanje igralca glede na pritisnjene tipke
     const Uint8* keyState = SDL_GetKeyboardState(nullptr);
     player.update(keyState);
 
+    // Beleženje premikov igralca za replay
+    if (inFarm) {
+        replayManager.recordMovement(player.getX(), player.getY());
+    }
+
+    // Izris igralca
     SDL_Rect playerRect = {player.getX() * 20, player.getY() * 20, 20, 20};
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Bela za igralca
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Bela barva za igralca
     SDL_RenderFillRect(renderer, &playerRect);
 
+    // Preverimo, ali je igralec blizu farme in jo aktiviramo
     if (!inFarm) {
         farm.checkProximity(player.getX(), player.getY());
         if (farm.activate(player.getX(), player.getY())) {
             inFarm = true;
-            timer.start();
-
-            // Ustvarimo nasprotnike
-            enemies.clear();
-            for (int i = 0; i < 3; ++i) { // Dodamo 3 nasprotnike
-                int enemyX, enemyY;
-                do {
-                    enemyX = rand() % 40;
-                    enemyY = rand() % 30;
-                } while (std::abs(enemyX - player.getX()) <= 5 && std::abs(enemyY - player.getY()) <= 5);
-                enemies.emplace_back(enemyX, enemyY);
+            timer.start(); // Timer se začne šele, ko igralec vstopi v farmo
+            replayManager.recordMovement(player.getX(), player.getY()); // Začetna pozicija v replayu
+    
+            // Ustvarimo nasprotnike samo enkrat
+            if (enemies.empty()) {
+                for (int i = 0; i < 3; ++i) { // Prepričamo se, da ustvarimo največ 3 nasprotnike
+                    int enemyX, enemyY;
+                    do {
+                        enemyX = rand() % 40;
+                        enemyY = rand() % 30;
+                    } while ((std::abs(enemyX - player.getX()) <= 6 && std::abs(enemyY - player.getY()) <= 6) || 
+                             (enemyX == farm.getX() && enemyY == farm.getY()));
+                    enemies.emplace_back(enemyX, enemyY);
+                    std::cout << "Enemy created at (" << enemyX << ", " << enemyY << ")" << std::endl;
+                }
             }
         }
     }
 
+    // Izris farme, če je vidna
     if (farm.isVisible()) {
         SDL_Rect farmRect = {farm.getX() * 20, farm.getY() * 20, 20, 20};
-        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Rumena za farmo
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Rumena barva za farmo
         SDL_RenderFillRect(renderer, &farmRect);
     }
 
+    // Izris nasprotnikov
     if (inFarm) {
-        if (!timerStarted) {
-            timer.start();
-            timerStarted = true;
-        }
-
         for (auto& enemy : enemies) {
             enemy.update(player.getX(), player.getY());
             SDL_Rect enemyRect = {enemy.getX() * 20, enemy.getY() * 20, 20, 20};
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Rdeča za nasprotnike
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Rdeča barva za nasprotnike
             SDL_RenderFillRect(renderer, &enemyRect);
 
+            // Preverimo, ali je nasprotnik blizu igralca
             if (enemy.isNearPlayer(player.getX(), player.getY())) {
                 player.loseLife();
                 if (!player.isAlive()) {
-                    player = Player(40, 30); // Ponastavimo igralca
-                    std::cout << "Game Over! You lost all your lives!" << std::endl;
-                    currentState = GameState::MENU;
+                    handleEndScreen(false, 0); // Klic funkcije za konec igre
                     return;
                 }
             }
         }
+    }
 
+    // Izris živali
+    if (inFarm && !animal.isRescued()) {
         SDL_Rect animalRect = {animal.getX() * 20, animal.getY() * 20, 20, 20};
-        SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255); // Rjava za žival
+        SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255); // Rjava barva za žival
         SDL_RenderFillRect(renderer, &animalRect);
 
+        // Preverimo, ali je igralec rešil žival
         if (animal.checkRescue(player.getX(), player.getY())) {
-            std::cout << "Animal rescued! Find the exit!" << std::endl;
-            farm.generateExit(40, 30, player.getX(), player.getY()); // Generiramo izhod
-        }
+            farm.generateExit(40, 30, player.getX(), player.getY());
 
-        if (farm.isExitVisible()) {
-            SDL_Rect exitRect = {farm.getExitX() * 20, farm.getExitY() * 20, 20, 20};
-            SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255); // Svetlo modra za izhod
-            SDL_RenderFillRect(renderer, &exitRect);
-
-            if (player.getX() == farm.getExitX() && player.getY() == farm.getExitY()) {
-                timer.stop();
-                double elapsedTime = timer.getElapsedTime();
-                std::cout << "You completed the game in " << elapsedTime << " seconds!" << std::endl;
-
-                scoreManager.addScore(menu.getPlayerName(), elapsedTime);
-                scoreManager.saveScores("scores.txt");
-
-                currentState = GameState::MENU;
-                return;
-            }
+            // Prikažemo besedilo "WHAT A SAVE!!"
+            SDL_Color white = {255, 255, 255, 255};
+            SDL_Surface* saveSurface = TTF_RenderText_Solid(menu.getFont(), "WHAT A SAVE!!", white);
+            SDL_Texture* saveTexture = SDL_CreateTextureFromSurface(renderer, saveSurface);
+            SDL_Rect saveRect = {200, 300, saveSurface->w, saveSurface->h};
+            SDL_RenderCopy(renderer, saveTexture, nullptr, &saveRect);
+            SDL_RenderPresent(renderer);
+            SDL_Delay(1000);
+            SDL_FreeSurface(saveSurface);
+            SDL_DestroyTexture(saveTexture);
         }
     }
 
+    // Izris izhoda, če je viden
+    if (farm.isExitVisible()) {
+        SDL_Rect exitRect = {farm.getExitX() * 20, farm.getExitY() * 20, 20, 20};
+        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255); // Svetlo modra barva za izhod
+        SDL_RenderFillRect(renderer, &exitRect);
+
+        // Preverimo, ali je igralec dosegel izhod
+        if (player.getX() == farm.getExitX() && player.getY() == farm.getExitY()) {
+            timer.stop();
+            double elapsedTime = timer.getElapsedTime();
+            handleEndScreen(true, elapsedTime);
+            return;
+        }
+    }
+
+    // Posodobimo zaslon
     SDL_RenderPresent(renderer);
 }
 
@@ -159,6 +181,21 @@ void Game::handleReplay() {
 }
 
 void Game::handleEndScreen(bool won, double elapsedTime) {
+    replayManager.saveReplay("replay.txt");
+
+    if (won) {
+        scoreManager.addScore(menu.getPlayerName(), elapsedTime);
+        scoreManager.saveScores("scores.txt");
+    }
+
+    // Ponastavimo stanje igre
+    player = Player(40, 30);
+    farm = Farm(40, 30);
+    animal = Animal(40, 30);
+    enemies.clear();
+    inFarm = false;
+    timerStarted = false;
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
@@ -171,54 +208,8 @@ void Game::handleEndScreen(bool won, double elapsedTime) {
     SDL_FreeSurface(messageSurface);
     SDL_DestroyTexture(messageTexture);
 
-    std::vector<std::string> options = {"Play Again", "Replay", "Exit Game", "Return to Menu"};
-    size_t selectedOption = 0;
+    SDL_RenderPresent(renderer);
+    SDL_Delay(3000);
 
-    bool waiting = true;
-    SDL_Event event;
-    while (waiting) {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
-        for (size_t i = 0; i < options.size(); ++i) {
-            SDL_Color color = (i == selectedOption) ? SDL_Color{255, 255, 0, 255} : white;
-            SDL_Surface* optionSurface = TTF_RenderText_Solid(menu.getFont(), options[i].c_str(), color);
-            SDL_Texture* optionTexture = SDL_CreateTextureFromSurface(renderer, optionSurface);
-            SDL_Rect optionRect = {200, 200 + static_cast<int>(i) * 50, optionSurface->w, optionSurface->h};
-            SDL_RenderCopy(renderer, optionTexture, nullptr, &optionRect);
-            SDL_FreeSurface(optionSurface);
-            SDL_DestroyTexture(optionTexture);
-        }
-
-        SDL_RenderPresent(renderer);
-
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_KEYDOWN) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_UP:
-                    case SDLK_w:
-                        selectedOption = (selectedOption - 1 + options.size()) % options.size();
-                        break;
-                    case SDLK_DOWN:
-                    case SDLK_s:
-                        selectedOption = (selectedOption + 1) % options.size();
-                        break;
-                    case SDLK_RETURN:
-                        if (selectedOption == 0) {
-                            currentState = GameState::PLAYING;
-                            waiting = false;
-                        } else if (selectedOption == 1) {
-                            currentState = GameState::REPLAY;
-                            waiting = false;
-                        } else if (selectedOption == 2) {
-                            exit(0);
-                        } else if (selectedOption == 3) {
-                            currentState = GameState::MENU;
-                            waiting = false;
-                        }
-                        break;
-                }
-            }
-        }
-    }
+    currentState = GameState::MENU;
 }
