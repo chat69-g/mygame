@@ -1,45 +1,38 @@
+
 #include "Farm.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
 
-Farm::Farm(int maxX, int maxY) : visible(false), exitVisible(false) {
+using namespace std; // Da lahko uporabljamo standardne funkcije brez std::
+
+Farm::Farm(int maxX, int maxY) : visible(true), exitVisible(false) {
+    // Inicializacija farme na naključnih koordinatah
     x = rand() % maxX;
     y = rand() % maxY;
-    std::cout << "Farm created at (" << x << ", " << y << ")" << std::endl;
-}
-
-bool Farm::activate(int playerX, int playerY) {
-    if (visible && playerX == x && playerY == y) {
-        std::cout << "Farm activated at (" << x << ", " << y << ")" << std::endl;
-        visible = false; // Skrijemo vrata, ko igralec vstopi
-        return true;
-    }
-    return false;
 }
 
 void Farm::checkProximity(int playerX, int playerY) {
-    // Vrata se prikažejo, ko je igralec na razdalji 5 enote
-    if (std::abs(playerX - x) <= 5 && std::abs(playerY - y) <= 5) {
+    // Preveri, ali je igralec blizu farme in jo naredi vidno
+    if (abs(playerX - x) <= 3 && abs(playerY - y) <= 3) {
         visible = true;
     }
 }
-bool Farm::activateExit(int playerX, int playerY) {
-    if (exitVisible && playerX == exitX && playerY == exitY) {
-        exitVisible = false; // Skrijemo izhod
+
+bool Farm::activate(int playerX, int playerY) {
+    // Aktiviraj farmo, če je igralec na vratih
+    if (visible && playerX == x && playerY == y) {
+        visible = false; // Skrij vrata, ko igralec vstopi
         return true;
     }
     return false;
 }
 
 void Farm::generateExit(int maxX, int maxY, int playerX, int playerY) {
+    // Ustvari izhod na varni razdalji od igralca
     do {
         exitX = rand() % maxX;
         exitY = rand() % maxY;
-    } while (std::abs(exitX - playerX) <= 3 && std::abs(exitY - playerY) <= 3); // Preverimo razdaljo
+    } while (abs(exitX - playerX) <= 3 && abs(exitY - playerY) <= 3);
     exitVisible = true;
-}
-
-bool Farm::isVisible() const {
-    return visible;
 }

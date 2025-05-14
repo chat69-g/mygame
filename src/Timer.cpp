@@ -1,21 +1,27 @@
 #include "Timer.hpp"
+using namespace std; // Da lahko uporabljamo standardne funkcije brez std::
 
-Timer::Timer() : running(false) {}
+Timer::Timer() : running(false) {
+    // Inicializacija timerja, ki ne teče
+}
 
 void Timer::start() {
-    startTime = std::chrono::high_resolution_clock::now();
+    // Začni timer in shrani trenutni čas
+    startTime = chrono::high_resolution_clock::now();
     running = true;
 }
 
 void Timer::stop() {
-    endTime = std::chrono::high_resolution_clock::now();
+    // Ustavi timer in shrani končni čas
+    endTime = chrono::high_resolution_clock::now();
     running = false;
 }
 
 double Timer::getElapsedTime() const {
+    // Vrni pretečeni čas v sekundah
     if (running) {
-        auto now = std::chrono::high_resolution_clock::now();
-        return std::chrono::duration<double>(now - startTime).count();
+        auto now = chrono::high_resolution_clock::now();
+        return chrono::duration<double>(now - startTime).count();
     }
-    return std::chrono::duration<double>(endTime - startTime).count();
+    return chrono::duration<double>(endTime - startTime).count();
 }

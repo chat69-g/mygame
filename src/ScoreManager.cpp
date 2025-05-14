@@ -4,19 +4,24 @@
 #include <algorithm>
 #include <SDL2/SDL_ttf.h>
 
-void ScoreManager::addScore(const std::string& name, double time) {
+using namespace std; // Da lahko uporabljamo standardne funkcije brez std::
+
+void ScoreManager::addScore(const string& name, double time) {
+    // Dodaj rezultat in ohrani samo top 5
     scores.emplace_back(name, time);
-    std::sort(scores.begin(), scores.end(), [](const auto& a, const auto& b) {
-        return a.second < b.second; // Sortiramo po času
+    sort(scores.begin(), scores.end(), [](const auto& a, const auto& b) {
+        return a.second < b.second; // Sortiraj po času
     });
     if (scores.size() > 5) {
         scores.resize(5); // Ohranimo samo top 5 rezultatov
     }
 }
-void ScoreManager::saveScores(const std::string& filename) const {
-    std::ofstream file(filename);
+
+void ScoreManager::saveScores(const string& filename) const {
+    // Shrani rezultate v datoteko
+    ofstream file(filename);
     if (!file) {
-        std::cerr << "Error: Could not open file for writing: " << filename << std::endl;
+        cerr << "Error: Could not open file for writing: " << filename << endl;
         return;
     }
     for (const auto& score : scores) {
@@ -24,20 +29,23 @@ void ScoreManager::saveScores(const std::string& filename) const {
     }
 }
 
-void ScoreManager::loadScores(const std::string& filename) {
-    std::ifstream file(filename);
+void ScoreManager::loadScores(const string& filename) {
+    // Naloži rezultate iz datoteke
+    ifstream file(filename);
     if (!file) {
-        std::cerr << "Error: Could not open file for reading: " << filename << std::endl;
+        cerr << "Error: Could not open file for reading: " << filename << endl;
         return;
     }
     scores.clear();
-    std::string name;
+    string name;
     double time;
     while (file >> name >> time) {
         scores.emplace_back(name, time);
     }
 }
+
 void ScoreManager::displayTopScores(SDL_Renderer* renderer, TTF_Font* font) const {
+    // Prikaži top 5 rezultatov na zaslonu
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
@@ -51,7 +59,7 @@ void ScoreManager::displayTopScores(SDL_Renderer* renderer, TTF_Font* font) cons
 
     int yOffset = 150;
     for (const auto& score : scores) {
-        std::string text = score.first + ": " + std::to_string(score.second) + " seconds";
+        string text = score.first + ": " + to_string(score.second) + " seconds";
         SDL_Surface* scoreSurface = TTF_RenderText_Solid(font, text.c_str(), white);
         SDL_Texture* scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
         SDL_Rect scoreRect = {200, yOffset, scoreSurface->w, scoreSurface->h};

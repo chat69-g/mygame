@@ -1,27 +1,30 @@
+
 #include "Enemy.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
 
-Enemy::Enemy(int maxX, int maxY) : lastMoveTime(0), speed(400) {
-    do {
-        x = rand() % maxX;
-        y = rand() % maxY;
-    } while (std::abs(x - maxX / 2) <= 3 && std::abs(y - maxY / 2) <= 3);
-    std::cout << "Enemy created at (" << x << ", " << y << ")" << std::endl;
+using namespace std; // Da lahko uporabljamo standardne funkcije brez std::
+
+Enemy::Enemy(int maxX, int maxY) : lastMoveTime(0), speed(300) {
+    // Inicializacija nasprotnika na naključnih koordinatah
+    x = rand() % maxX;
+    y = rand() % maxY;
 }
 
 void Enemy::update(int playerX, int playerY) {
+    // Posodobi pozicijo nasprotnika glede na igralca
     Uint32 currentTime = SDL_GetTicks();
     if (currentTime > lastMoveTime + speed) {
-        if (playerX > x && x < 39) x++; // Omejitev na 40 stolpcev
-        else if (playerX < x && x > 0) x--;
-        if (playerY > y && y < 29) y++; // Omejitev na 30 vrstic
-        else if (playerY < y && y > 0) y--;
+        if (playerX > x) ++x; // Premik desno proti igralcu
+        else if (playerX < x) --x; // Premik levo proti igralcu
+        if (playerY > y) ++y; // Premik dol proti igralcu
+        else if (playerY < y) --y; // Premik gor proti igralcu
         lastMoveTime = currentTime;
     }
 }
 
 bool Enemy::isNearPlayer(int playerX, int playerY) const {
-    return std::abs(playerX - x) <= 1 && std::abs(playerY - y) <= 1;
+    // Preveri, ali je nasprotnik na isti poziciji kot igralec
+    return (x == playerX && y == playerY);
 }

@@ -1,22 +1,24 @@
+
 #pragma once
+
+using namespace std; // Da lahko uporabljamo standardne funkcije brez std::
 
 class Farm {
 private:
-    int x, y;
-    bool visible;
+    int x, y; // Koordinate farme
     int exitX, exitY; // Koordinate izhoda
+    bool visible; // Ali so vrata farme vidna
     bool exitVisible; // Ali je izhod viden
 
 public:
-    Farm(int maxX, int maxY);
-    bool isVisible() const;
-    void checkProximity(int playerX, int playerY);
-    bool activate(int playerX, int playerY);
-    int getX() const { return x; }
-    int getY() const { return y; }
-    bool activateExit(int playerX, int playerY);
-    void generateExit(int maxX, int maxY, int playerX, int playerY);
-    bool isExitVisible() const { return exitVisible; }
-    int getExitX() const { return exitX; }
-    int getExitY() const { return exitY; }
+    Farm(int maxX, int maxY); // Konstruktor za inicializacijo farme
+    void checkProximity(int playerX, int playerY); // Preveri, ali je igralec blizu farme
+    bool activate(int playerX, int playerY); // Aktiviraj farmo, če je igralec na vratih
+    void generateExit(int maxX, int maxY, int playerX, int playerY); // Ustvari izhod na varni razdalji od igralca
+    bool isVisible() const { return visible; } // Preveri, ali so vrata farme vidna
+    bool isExitVisible() const { return exitVisible; } // Preveri, ali je izhod viden
+    int getX() const { return x; } // Vrni trenutno X koordinato farme
+    int getY() const { return y; } // Vrni trenutno Y koordinato farme
+    int getExitX() const { return exitX; } // Vrni trenutno X koordinato izhoda
+    int getExitY() const { return exitY; } // Vrni trenutno Y koordinato izhoda
 };

@@ -4,13 +4,15 @@
 #include <vector>
 #include <string>
 
+using namespace std; // Da lahko uporabljamo standardne funkcije brez std::
+
 class ScoreManager {
-    private:
-        std::vector<std::pair<std::string, double>> scores;
-    
-    public:
-        void addScore(const std::string& name, double time);
-        void saveScores(const std::string& filename) const;
-        void loadScores(const std::string& filename);
-        void displayTopScores(SDL_Renderer* renderer, TTF_Font* font) const; // Pravilno definirano
-    };
+private:
+    vector<pair<string, double>> scores; // Seznam rezultatov (ime, čas)
+
+public:
+    void addScore(const string& name, double time); // Dodaj rezultat
+    void saveScores(const string& filename) const; // Shrani rezultate v datoteko
+    void loadScores(const string& filename); // Naloži rezultate iz datoteke
+    void displayTopScores(SDL_Renderer* renderer, TTF_Font* font) const; // Prikaži top 5 rezultatov
+};

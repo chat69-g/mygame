@@ -1,15 +1,16 @@
 #pragma once
 #include <chrono>
+using namespace std; // Da lahko uporabljamo standardne funkcije brez std::
 
 class Timer {
 private:
-    std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
-    std::chrono::time_point<std::chrono::high_resolution_clock> endTime;
-    bool running;
+    chrono::time_point<chrono::high_resolution_clock> startTime; // Začetni čas
+    chrono::time_point<chrono::high_resolution_clock> endTime; // Končni čas
+    bool running; // Ali timer trenutno teče
 
 public:
-    Timer(); // Deklaracija konstruktorja
-    void start(); // Deklaracija metode start
-    void stop(); // Deklaracija metode stop
-    double getElapsedTime() const; // Deklaracija metode getElapsedTime
+    Timer(); // Konstruktor za inicializacijo timerja
+    void start(); // Začni timer
+    void stop(); // Ustavi timer
+    double getElapsedTime() const; // Vrni pretečeni čas v sekundah
 };

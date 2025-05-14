@@ -2,15 +2,18 @@
 #include <fstream>
 #include <iostream>
 #include <SDL2/SDL_ttf.h>
+using namespace std; // Da lahko uporabljamo standardne funkcije brez std::
 
 void ReplayManager::recordMovement(int x, int y) {
+    // Zabeleži premik igralca
     movements.emplace_back(x, y);
 }
 
-void ReplayManager::saveReplay(const std::string& filename) const {
-    std::ofstream file(filename);
+void ReplayManager::saveReplay(const string& filename) const {
+    // Shrani replay v datoteko
+    ofstream file(filename);
     if (!file) {
-        std::cerr << "Error: Could not open file for writing: " << filename << std::endl;
+        cerr << "Error: Could not open file for writing: " << filename << endl;
         return;
     }
     for (const auto& move : movements) {
@@ -18,10 +21,11 @@ void ReplayManager::saveReplay(const std::string& filename) const {
     }
 }
 
-void ReplayManager::loadReplay(const std::string& filename) {
-    std::ifstream file(filename);
+void ReplayManager::loadReplay(const string& filename) {
+    // Naloži replay iz datoteke
+    ifstream file(filename);
     if (!file) {
-        std::cerr << "Error: Could not open file for reading: " << filename << std::endl;
+        cerr << "Error: Could not open file for reading: " << filename << endl;
         return;
     }
     movements.clear();
@@ -32,6 +36,7 @@ void ReplayManager::loadReplay(const std::string& filename) {
 }
 
 void ReplayManager::displayReplay(SDL_Renderer* renderer, [[maybe_unused]] TTF_Font* font) const {
+    // Prikaži replay na zaslonu
     SDL_Event event;
     for (const auto& move : movements) {
         // Preverimo, ali je bil pritisnjen ESC
